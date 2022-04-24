@@ -32,20 +32,26 @@ export const MainStack: React.FC = () => {
         <Stack.Navigator
             screenOptions={{
                 headerShadowVisible: false,
-                headerTitleStyle: { fontSize: 22 },
-                headerRight: () => (
-                    <Pressable onPress={handleScannPress}>
-                        <Icon
-                            name={isEnabled ? 'stop' : 'play'}
-                            size={18}
-                            color={iconColor}
-                            style={{ padding: 8 }}
-                        />
-                    </Pressable>
-                ),
+                headerTitleStyle: { fontSize: 18 },
+                headerBackTitle: 'Back',
             }}
         >
-            <Stack.Screen name="Scanner" component={ScannerScreen} />
+            <Stack.Screen
+                name="Scanner"
+                component={ScannerScreen}
+                options={{
+                    headerRight: () => (
+                        <Pressable onPress={handleScannPress}>
+                            <Icon
+                                name={isEnabled ? 'stop' : 'play'}
+                                size={18}
+                                color={iconColor}
+                                style={{ padding: 8 }}
+                            />
+                        </Pressable>
+                    ),
+                }}
+            />
             <Stack.Screen name="Device" component={DeviceScreen} />
         </Stack.Navigator>
     );
