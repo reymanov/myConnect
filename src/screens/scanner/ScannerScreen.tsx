@@ -46,6 +46,6 @@ const styles = StyleSheet.create({
         ...StyleSheet.absoluteFillObject,
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: 84,
+        marginBottom: 4,
     },
 });

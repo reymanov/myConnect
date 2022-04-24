@@ -11,7 +11,7 @@ const options = {
     ignoreAndroidSystemSettings: false,
 };
 
-export const MainStack: React.FC = () => {
+export const ScannerStack: React.FC = () => {
     const Stack = createNativeStackNavigator();
     const { colorMode } = useColorMode();
     const { colors } = useTheme();
@@ -32,8 +32,9 @@ export const MainStack: React.FC = () => {
         <Stack.Navigator
             screenOptions={{
                 headerShadowVisible: false,
-                headerTitleStyle: { fontSize: 18 },
+                headerTitleStyle: { fontSize: 18, color: isDarkMode ? colors.white : colors.black },
                 headerBackTitle: 'Back',
+                headerTintColor: colors.primary[600],
             }}
         >
             <Stack.Screen

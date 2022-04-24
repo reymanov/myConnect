@@ -26,4 +26,5 @@ const App: React.FC = () => {
     );
 };
 
+console.disableYellowBox = true;
 export default App;
