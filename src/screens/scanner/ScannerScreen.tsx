@@ -24,10 +24,11 @@ export const ScannerScreen = () => {
             </View>
 
             <ScrollView>
-                {devices.map(device => (
+                {devices.map(({ name, rssi }) => (
                     <DiscoveredDevice
-                        name={device.name}
-                        rssi={device.rssi}
+                        key={name}
+                        name={name}
+                        rssi={rssi}
                         onPress={navigateToDevice}
                         onButtonPress={() => {}}
                     />

@@ -29,7 +29,7 @@ export const RootNavigator: React.FC = () => {
                         const iconSize = 28;
                         const iconColor = focused ? activeTintColor : inactiveTintColor;
 
-                        if (route.name === 'Scanner') iconName = 'rss-feed';
+                        if (route.name === 'Home') iconName = 'rss-feed';
                         if (route.name === 'RSSIGraph') iconName = 'show-chart';
                         if (route.name === 'Settings') iconName = 'settings';
 
@@ -38,9 +38,9 @@ export const RootNavigator: React.FC = () => {
                 })}
             >
                 <Tab.Screen
-                    name="Scanner"
+                    name="Home"
                     component={ScannerStack}
-                    options={{ headerShown: false }}
+                    options={{ headerShown: false, title: 'Scanner' }}
                 />
                 <Tab.Screen
                     name="RSSIGraph"

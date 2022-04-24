@@ -1,5 +1,5 @@
 export type TRootNavigator = {
-    Scanner: undefined;
+    Home: undefined;
     RSSIGraph: undefined;
     Settings: undefined;
 };
