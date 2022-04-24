@@ -3,10 +3,10 @@ import { StyleSheet } from 'react-native';
 import ThemedText from '@src/components/texts/ThemedText';
 import ThemedContainer from '@src/containers/ThemedContainer';
 
-export const MainScreen = () => {
+export const DeviceScreen = () => {
     return (
         <ThemedContainer style={styles.container}>
-            <ThemedText>MainScreen</ThemedText>
+            <ThemedText>Device</ThemedText>
         </ThemedContainer>
     );
 };

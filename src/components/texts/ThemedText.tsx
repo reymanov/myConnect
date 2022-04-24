@@ -1,10 +1,15 @@
 import React from 'react';
 import { ITextProps, Text, useColorMode, useTheme } from 'native-base';
 
-const ThemedText: React.FC<ITextProps> = props => {
+interface Props {
+    inverted?: boolean;
+}
+
+const ThemedText: React.FC<ITextProps & Props> = ({ inverted, ...props }) => {
     const { colorMode } = useColorMode();
     const { colors } = useTheme();
-    const textColor = colorMode === 'dark' ? colors.dark[900] : 'black';
+    const isDarkMode = inverted ? colorMode === 'light' : colorMode === 'dark';
+    const textColor = isDarkMode ? colors.dark[900] : colors.black;
 
     return (
         <Text color={textColor} {...props}>
