@@ -6,8 +6,8 @@ export const MainStack: React.FC = () => {
     const Stack = createNativeStackNavigator();
 
     return (
-        <Stack.Navigator>
-            <Stack.Screen name="Home" component={MainScreen} />
+        <Stack.Navigator screenOptions={{ headerShadowVisible: false }}>
+            <Stack.Screen name="Scanner" component={MainScreen} />
         </Stack.Navigator>
     );
 };

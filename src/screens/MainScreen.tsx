@@ -1,12 +1,13 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { StyleSheet } from 'react-native';
+import ThemedText from '@src/components/texts/ThemedText';
+import ThemedContainer from '@src/containers/ThemedContainer';
 
 export const MainScreen = () => {
     return (
-        <SafeAreaView style={styles.container}>
-            <Text>MainScreen</Text>
-        </SafeAreaView>
+        <ThemedContainer style={styles.container}>
+            <ThemedText>MainScreen</ThemedText>
+        </ThemedContainer>
     );
 };
 
