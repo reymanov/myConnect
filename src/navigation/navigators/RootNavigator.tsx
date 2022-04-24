@@ -4,8 +4,8 @@ import { ScannerStack } from '@navigation/stacks';
 import { useColorMode, useTheme } from 'native-base';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { GraphScreen, SettingsScreen } from '@src/screens';
-import Icon from 'react-native-vector-icons/MaterialIcons';
 import { TRootNavigator } from '../types/TRootNavigator';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 export const RootNavigator: React.FC = () => {
     const Tab = createBottomTabNavigator<TRootNavigator>();
@@ -30,7 +30,7 @@ export const RootNavigator: React.FC = () => {
                         const iconColor = focused ? activeTintColor : inactiveTintColor;
 
                         if (route.name === 'Scanner') iconName = 'rss-feed';
-                        if (route.name === 'Graph') iconName = 'show-chart';
+                        if (route.name === 'RSSIGraph') iconName = 'show-chart';
                         if (route.name === 'Settings') iconName = 'settings';
 
                         return <Icon name={iconName} size={iconSize} color={iconColor} />;
@@ -43,9 +43,9 @@ export const RootNavigator: React.FC = () => {
                     options={{ headerShown: false }}
                 />
                 <Tab.Screen
-                    name="Graph"
+                    name="RSSIGraph"
                     component={GraphScreen}
-                    options={{ headerTitle: 'RSSI Graph' }}
+                    options={{ headerTitle: 'RSSI Graph', title: 'RSSI Graph' }}
                 />
                 <Tab.Screen
                     name="Settings"
