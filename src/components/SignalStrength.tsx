@@ -1,6 +1,6 @@
-import { useColorMode, useTheme } from 'native-base';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
+import { useColorMode, useTheme } from 'native-base';
 
 interface ItemProps {
     height: number | string;
@@ -47,7 +47,7 @@ export const SignalStrength: React.FC<Props> = ({ rssi }) => {
     return (
         <View style={styles.container}>
             <SignalItem height={'30%'} isActive={rssi && rssi >= -90 ? true : false} />
-            <SignalItem height={'60%'} isActive={rssi && rssi >= -85 ? true : false} />
+            <SignalItem height={'60%'} isActive={rssi && rssi >= -75 ? true : false} />
             <SignalItem height={'90%'} isActive={rssi && rssi >= -60 ? true : false} />
         </View>
     );

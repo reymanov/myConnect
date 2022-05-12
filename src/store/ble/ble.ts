@@ -29,9 +29,12 @@ export const bleSlice = createSlice({
         addToDiscoveredDevices: (state, action: PayloadAction<Device>) => {
             bleAdapter.addOne(state, action.payload);
         },
-        updateDiscoveredDevice: (state, action: PayloadAction<Device>) => {
-            const device = action.payload;
-            bleAdapter.updateOne(state, { id: device.id, changes: device });
+        updateRssiForDevice: (
+            state,
+            action: PayloadAction<{ id: string; rssi: number | null }>
+        ) => {
+            const { id, rssi } = action.payload;
+            bleAdapter.updateOne(state, { id, changes: { rssi } });
         },
         clearDiscoveredDevices: state => {
             bleAdapter.removeAll(state);

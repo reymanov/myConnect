@@ -1,12 +1,12 @@
 import React, { useCallback, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, RefreshControl } from 'react-native';
+import { View, StyleSheet, RefreshControl, FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import ThemedContainer from '@src/containers/ThemedContainer';
-import { DiscoveredDevice } from './components';
+import { DiscoveredDevice } from './components/DiscoveredDevice';
 import { useDispatch } from 'react-redux';
 import { HapticFeedback } from '@src/utils/HapticFeedback';
 import { MyConnectLogo } from '@src/components/MyConnectLogo';
-import { BleManager, ScanMode } from 'react-native-ble-plx';
+import { BleManager, Device, ScanMode } from 'react-native-ble-plx';
 import {
     bleActions,
     useSelectDiscoveredDeviceIds,
@@ -34,12 +34,13 @@ export const ScannerScreen = () => {
     };
 
     const scanForDevices = useCallback(() => {
-        manager.startDeviceScan(null, { scanMode: ScanMode.LowPower }, (error, device) => {
+        manager.startDeviceScan(null, { scanMode: ScanMode.LowPower }, async (error, device) => {
             if (device && device.name) {
                 if (!discoveredDeviceIds.includes(device.id)) {
+                    delete device._manager;
                     dispatch(bleActions.addToDiscoveredDevices(device));
                 } else {
-                    dispatch(bleActions.updateDiscoveredDevice(device));
+                    dispatch(bleActions.updateRssiForDevice({ id: device.id, rssi: device.rssi }));
                 }
             }
             if (error) {
@@ -67,24 +68,21 @@ export const ScannerScreen = () => {
                 <MyConnectLogo />
             </View>
 
-            <ScrollView
+            <FlatList
                 refreshControl={<RefreshControl refreshing={false} onRefresh={onRefresh} />}
-            >
-                {discoveredDevices.map(({ id, name, rssi }) => {
-                    return (
-                        <DiscoveredDevice
-                            key={id}
-                            id={id}
-                            name={name}
-                            rssi={rssi}
-                            isScanActive={isScanning}
-                            isConnected={false}
-                            onPress={navigateToDevice}
-                            onButtonPress={() => {}}
-                        />
-                    );
-                })}
-            </ScrollView>
+                keyExtractor={item => item.id}
+                data={discoveredDevices}
+                renderItem={({ item }: { item: Device }) => (
+                    <DiscoveredDevice
+                        key={item.id}
+                        device={item}
+                        isScanActive={isScanning}
+                        isConnected={false}
+                        onPress={navigateToDevice}
+                        onButtonPress={() => {}}
+                    />
+                )}
+            />
         </ThemedContainer>
     );
 };

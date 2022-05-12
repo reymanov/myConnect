@@ -4,13 +4,12 @@ import { StyleSheet, TouchableOpacity } from 'react-native';
 import { Button, HStack, Spacer, Text, useColorMode, useTheme, VStack } from 'native-base';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import ThemedText from '@src/components/texts/ThemedText';
-import { HapticFeedback } from '@src/utils/HapticFeedback';
-import { SignalStrength } from './SignalStrength';
+import { HapticFeedback } from '@utils/HapticFeedback';
+import { SignalStrength } from '@components/SignalStrength';
+import { Device } from 'react-native-ble-plx';
 
 interface Props {
-    id: string;
-    name: string | null;
-    rssi: number | null;
+    device: Device;
     isScanActive: boolean;
     isConnected: boolean | null;
     onPress: () => void;
@@ -18,9 +17,7 @@ interface Props {
 }
 
 export const DiscoveredDevice: React.FC<Props> = ({
-    id,
-    name,
-    rssi,
+    device,
     isScanActive,
     isConnected,
     onPress,
@@ -32,6 +29,8 @@ export const DiscoveredDevice: React.FC<Props> = ({
     const isDarkMode = colorMode === 'dark';
     const backgroundColor = isDarkMode ? DarkTheme.colors.card : colors.white;
     const iconColor = colors.dark[400];
+
+    const { id, name, rssi } = device;
 
     const handleButtonPress = () => {
         HapticFeedback('impactLight');
@@ -60,13 +59,7 @@ export const DiscoveredDevice: React.FC<Props> = ({
 
                 <Spacer />
 
-                <Button
-                    rounded={'md'}
-                    size={'xs'}
-                    onPress={handleButtonPress}
-                    bg={colors.primary[700]}
-                    _pressed={{ bg: colors.primary[600] }}
-                >
+                <Button rounded={'md'} size={'xs'} onPress={handleButtonPress}>
                     <Text color={colors.white} fontWeight={'medium'}>
                         {isConnected ? 'Disconnect' : 'Connect'}
                     </Text>
