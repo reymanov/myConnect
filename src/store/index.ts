@@ -1,5 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit';
-import counter from './reducers/counter';
+import ble from './ble/ble';
 import thunk from 'redux-thunk';
 
 const middlewares = [thunk];
@@ -11,7 +11,7 @@ if (__DEV__) {
 
 export const store = configureStore({
     reducer: {
-        counter,
+        ble,
     },
     middleware: middlewares,
 });

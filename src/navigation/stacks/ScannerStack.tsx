@@ -1,31 +1,30 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { DeviceScreen, ScannerScreen } from '@src/screens';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import { useColorMode, useTheme } from 'native-base';
 import { Pressable } from 'react-native';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-
-const options = {
-    enableVibrateFallback: true,
-    ignoreAndroidSystemSettings: false,
-};
+import { bleActions, useSelectIsScanning } from '@src/store/ble';
+import { useDispatch } from 'react-redux';
+import { HapticFeedback } from '@src/utils/HapticFeedback';
 
 export const ScannerStack: React.FC = () => {
     const Stack = createNativeStackNavigator();
+    const isScanning = useSelectIsScanning();
     const { colorMode } = useColorMode();
     const { colors } = useTheme();
+    const dispatch = useDispatch();
     const isDarkMode = colorMode === 'dark';
     const iconColor = isDarkMode ? colors.dark[900] : colors.black;
 
-    const [isEnabled, setIsEnabled] = useState(false);
+    const startScan = () => {
+        HapticFeedback('notificationSuccess');
+        dispatch(bleActions.startScan());
+    };
 
-    const handleScannPress = () => {
-        isEnabled
-            ? ReactNativeHapticFeedback.trigger('impactHeavy', options)
-            : ReactNativeHapticFeedback.trigger('notificationSuccess', options);
-
-        setIsEnabled(!isEnabled);
+    const stopScan = () => {
+        HapticFeedback('impactHeavy');
+        dispatch(bleActions.stopScan());
     };
 
     return (
@@ -42,9 +41,9 @@ export const ScannerStack: React.FC = () => {
                 component={ScannerScreen}
                 options={{
                     headerRight: () => (
-                        <Pressable onPress={handleScannPress}>
+                        <Pressable onPress={isScanning ? stopScan : startScan}>
                             <Icon
-                                name={isEnabled ? 'stop' : 'play'}
+                                name={isScanning ? 'stop' : 'play'}
                                 size={18}
                                 color={iconColor}
                                 style={{ padding: 8 }}

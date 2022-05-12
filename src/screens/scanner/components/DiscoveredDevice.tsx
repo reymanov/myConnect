@@ -1,24 +1,31 @@
 import React from 'react';
 import { DarkTheme } from '@react-navigation/native';
 import { StyleSheet, TouchableOpacity } from 'react-native';
-import { Box, Button, HStack, Spacer, Text, useColorMode, useTheme, VStack } from 'native-base';
+import { Button, HStack, Spacer, Text, useColorMode, useTheme, VStack } from 'native-base';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import ThemedText from '@src/components/texts/ThemedText';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-
-const options = {
-    enableVibrateFallback: true,
-    ignoreAndroidSystemSettings: false,
-};
+import { HapticFeedback } from '@src/utils/HapticFeedback';
+import { SignalStrength } from './SignalStrength';
 
 interface Props {
-    name?: string;
-    rssi?: string;
+    id: string;
+    name: string | null;
+    rssi: number | null;
+    isScanActive: boolean;
+    isConnected: boolean | null;
     onPress: () => void;
-    onButtonPress: () => void;
+    onButtonPress: (id: string) => void;
 }
 
-export const DiscoveredDevice: React.FC<Props> = ({ name, rssi, onPress, onButtonPress }) => {
+export const DiscoveredDevice: React.FC<Props> = ({
+    id,
+    name,
+    rssi,
+    isScanActive,
+    isConnected,
+    onPress,
+    onButtonPress,
+}) => {
     const { colorMode } = useColorMode();
     const { colors } = useTheme();
 
@@ -27,16 +34,17 @@ export const DiscoveredDevice: React.FC<Props> = ({ name, rssi, onPress, onButto
     const iconColor = colors.dark[400];
 
     const handleButtonPress = () => {
-        ReactNativeHapticFeedback.trigger('impactLight', options);
-        onButtonPress();
+        HapticFeedback('impactLight');
+        onButtonPress(id);
     };
 
     return (
         <TouchableOpacity style={[styles.item, { backgroundColor }]} onPress={onPress}>
             <HStack w={'full'} alignItems={'center'} space={4}>
-                <Box backgroundColor={backgroundColor}>
+                <VStack alignItems={'center'} space={1}>
                     <Icon name={'bluetooth'} size={28} color={iconColor} />
-                </Box>
+                    <SignalStrength rssi={isScanActive || isConnected ? rssi : null} />
+                </VStack>
 
                 <VStack space={'md'}>
                     <ThemedText fontSize={'md'} fontWeight={'medium'}>
@@ -45,7 +53,7 @@ export const DiscoveredDevice: React.FC<Props> = ({ name, rssi, onPress, onButto
                     <HStack alignItems={'center'} space={1}>
                         <Icon name={'signal-cellular-alt'} size={14} color={iconColor} />
                         <ThemedText fontSize={'xs'} fontWeight={'light'}>
-                            {rssi ? `${rssi} dBm` : 'N/A'}
+                            {isScanActive || (isConnected && rssi) ? `${rssi} dBm` : 'N/A'}
                         </ThemedText>
                     </HStack>
                 </VStack>
@@ -60,7 +68,7 @@ export const DiscoveredDevice: React.FC<Props> = ({ name, rssi, onPress, onButto
                     _pressed={{ bg: colors.primary[600] }}
                 >
                     <Text color={colors.white} fontWeight={'medium'}>
-                        Connect
+                        {isConnected ? 'Disconnect' : 'Connect'}
                     </Text>
                 </Button>
             </HStack>

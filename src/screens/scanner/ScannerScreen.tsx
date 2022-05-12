@@ -1,21 +1,65 @@
-import React from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import React, { useCallback, useEffect } from 'react';
+import { View, StyleSheet, ScrollView, RefreshControl } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import ThemedContainer from '@src/containers/ThemedContainer';
-import { DiscoveredDevice, MyConnectLogo } from './components';
+import { DiscoveredDevice } from './components';
+import { useDispatch } from 'react-redux';
+import { HapticFeedback } from '@src/utils/HapticFeedback';
+import { MyConnectLogo } from '@src/components/MyConnectLogo';
+import { BleManager, ScanMode } from 'react-native-ble-plx';
+import {
+    bleActions,
+    useSelectDiscoveredDeviceIds,
+    useSelectDiscoveredDevices,
+    useSelectIsScanning,
+} from '@src/store/ble';
+
+const manager = new BleManager();
 
 export const ScannerScreen = () => {
     const navigation = useNavigation();
-
-    const devices: any[] = [
-        { name: 'Device one', rssi: '-65' },
-        { name: 'Device two', rssi: '-32' },
-        { name: 'Device three', rssi: '-82' },
-    ];
+    const discoveredDeviceIds = useSelectDiscoveredDeviceIds();
+    const discoveredDevices = useSelectDiscoveredDevices();
+    const isScanning = useSelectIsScanning();
+    const dispatch = useDispatch();
 
     const navigateToDevice = () => {
         navigation.navigate('Device');
+        dispatch(bleActions.stopScan());
     };
+
+    const onRefresh = () => {
+        HapticFeedback('impactLight');
+        dispatch(bleActions.clearDiscoveredDevices());
+    };
+
+    const scanForDevices = useCallback(() => {
+        manager.startDeviceScan(null, { scanMode: ScanMode.LowPower }, (error, device) => {
+            if (device && device.name) {
+                if (!discoveredDeviceIds.includes(device.id)) {
+                    dispatch(bleActions.addToDiscoveredDevices(device));
+                } else {
+                    dispatch(bleActions.updateDiscoveredDevice(device));
+                }
+            }
+            if (error) {
+                console.log(error);
+            }
+        });
+    }, [dispatch, discoveredDeviceIds]);
+
+    useEffect(() => {
+        if (!isScanning) return;
+        scanForDevices();
+        const interval = setInterval(() => {
+            scanForDevices();
+        }, 1000);
+
+        return () => {
+            clearInterval(interval);
+            manager.stopDeviceScan();
+        };
+    }, [isScanning, dispatch, scanForDevices]);
 
     return (
         <ThemedContainer style={styles.container}>
@@ -23,16 +67,23 @@ export const ScannerScreen = () => {
                 <MyConnectLogo />
             </View>
 
-            <ScrollView>
-                {devices.map(({ name, rssi }) => (
-                    <DiscoveredDevice
-                        key={name}
-                        name={name}
-                        rssi={rssi}
-                        onPress={navigateToDevice}
-                        onButtonPress={() => {}}
-                    />
-                ))}
+            <ScrollView
+                refreshControl={<RefreshControl refreshing={false} onRefresh={onRefresh} />}
+            >
+                {discoveredDevices.map(({ id, name, rssi }) => {
+                    return (
+                        <DiscoveredDevice
+                            key={id}
+                            id={id}
+                            name={name}
+                            rssi={rssi}
+                            isScanActive={isScanning}
+                            isConnected={false}
+                            onPress={navigateToDevice}
+                            onButtonPress={() => {}}
+                        />
+                    );
+                })}
             </ScrollView>
         </ThemedContainer>
     );

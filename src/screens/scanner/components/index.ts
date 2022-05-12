@@ -1,2 +1,2 @@
 export * from './DiscoveredDevice';
-export * from './MyConnectLogo';
+export * from './SignalStrength';
