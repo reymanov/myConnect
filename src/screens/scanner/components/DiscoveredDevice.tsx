@@ -2,14 +2,14 @@ import React from 'react';
 import { DarkTheme } from '@react-navigation/native';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { Button, HStack, Spacer, Text, useColorMode, useTheme, VStack } from 'native-base';
-import Icon from 'react-native-vector-icons/MaterialIcons';
-import ThemedText from '@src/components/texts/ThemedText';
 import { HapticFeedback } from '@utils/HapticFeedback';
 import { SignalStrength } from '@components/SignalStrength';
-import { Device } from 'react-native-ble-plx';
+import { BleDevice } from '@store/ble';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import ThemedText from '@components/texts/ThemedText';
 
 interface Props {
-    device: Device;
+    device: BleDevice;
     isScanActive: boolean;
     isConnected: boolean | null;
     onPress: () => void;
@@ -30,7 +30,8 @@ export const DiscoveredDevice: React.FC<Props> = ({
     const backgroundColor = isDarkMode ? DarkTheme.colors.card : colors.white;
     const iconColor = colors.dark[400];
 
-    const { id, name, rssi } = device;
+    const { id, name, rssi, lastUpdated } = device;
+    const isReachable = Date.now() - lastUpdated < 5000;
 
     const handleButtonPress = () => {
         HapticFeedback('impactLight');
@@ -42,7 +43,7 @@ export const DiscoveredDevice: React.FC<Props> = ({
             <HStack w={'full'} alignItems={'center'} space={4}>
                 <VStack alignItems={'center'} space={1}>
                     <Icon name={'bluetooth'} size={28} color={iconColor} />
-                    <SignalStrength rssi={isScanActive || isConnected ? rssi : null} />
+                    <SignalStrength rssi={isScanActive && isReachable ? rssi : null} />
                 </VStack>
 
                 <VStack space={'md'}>
@@ -52,7 +53,7 @@ export const DiscoveredDevice: React.FC<Props> = ({
                     <HStack alignItems={'center'} space={1}>
                         <Icon name={'signal-cellular-alt'} size={14} color={iconColor} />
                         <ThemedText fontSize={'xs'} fontWeight={'light'}>
-                            {isScanActive || (isConnected && rssi) ? `${rssi} dBm` : 'N/A'}
+                            {isReachable && isScanActive && rssi ? `${rssi} dBm` : 'N/A'}
                         </ThemedText>
                     </HStack>
                 </VStack>

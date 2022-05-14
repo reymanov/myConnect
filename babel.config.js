@@ -6,7 +6,6 @@ module.exports = api => {
             {
                 root: ['./'],
                 alias: {
-                    '@src': './src',
                     '@assets': './src/assets',
                     '@components': './src/components',
                     '@constants': './src/constants',
@@ -14,6 +13,8 @@ module.exports = api => {
                     '@screens': './src/screens',
                     '@store': './src/store',
                     '@utils': './src/utils',
+                    '@hooks': './src/hooks',
+                    '@src': './src',
                 },
             },
         ],

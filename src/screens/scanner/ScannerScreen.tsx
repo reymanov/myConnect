@@ -1,18 +1,20 @@
 import React, { useCallback, useEffect } from 'react';
 import { View, StyleSheet, RefreshControl, FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import ThemedContainer from '@src/containers/ThemedContainer';
 import { DiscoveredDevice } from './components/DiscoveredDevice';
 import { useDispatch } from 'react-redux';
-import { HapticFeedback } from '@src/utils/HapticFeedback';
-import { MyConnectLogo } from '@src/components/MyConnectLogo';
-import { BleManager, Device, ScanMode } from 'react-native-ble-plx';
+import { BleManager, ScanMode } from 'react-native-ble-plx';
+import { HapticFeedback } from '@utils/HapticFeedback';
+import useInterval from '@hooks/useInterval';
+import { MyConnectLogo } from '@components/MyConnectLogo';
+import ThemedContainer from '@components/containers/ThemedContainer';
 import {
     bleActions,
+    BleDevice,
     useSelectDiscoveredDeviceIds,
     useSelectDiscoveredDevices,
     useSelectIsScanning,
-} from '@src/store/ble';
+} from '@store/ble';
 
 const manager = new BleManager();
 
@@ -50,17 +52,12 @@ export const ScannerScreen = () => {
     }, [dispatch, discoveredDeviceIds]);
 
     useEffect(() => {
-        if (!isScanning) return;
-        scanForDevices();
-        const interval = setInterval(() => {
-            scanForDevices();
-        }, 1000);
-
-        return () => {
-            clearInterval(interval);
+        if (!isScanning) {
             manager.stopDeviceScan();
-        };
-    }, [isScanning, dispatch, scanForDevices]);
+        }
+    }, [isScanning]);
+
+    useInterval(() => scanForDevices(), isScanning ? 1000 : null);
 
     return (
         <ThemedContainer style={styles.container}>
@@ -72,7 +69,7 @@ export const ScannerScreen = () => {
                 refreshControl={<RefreshControl refreshing={false} onRefresh={onRefresh} />}
                 keyExtractor={item => item.id}
                 data={discoveredDevices}
-                renderItem={({ item }: { item: Device }) => (
+                renderItem={({ item }: { item: BleDevice }) => (
                     <DiscoveredDevice
                         key={item.id}
                         device={item}
