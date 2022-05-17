@@ -1,9 +1,17 @@
 import { createEntityAdapter, createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { AppState } from '@src/store';
 import { Device } from 'react-native-ble-plx';
-export interface BleDevice extends Device {
+
+export type ManufacturerData = {
+    code: string;
+    data: string;
+    name: string | null;
+};
+
+export type BleDevice = {
     lastUpdated: number;
-}
+    manufacturerData: ManufacturerData;
+} & Device;
 
 export interface BleState {
     isScanning: boolean;
@@ -29,8 +37,12 @@ export const bleSlice = createSlice({
         stopScan: state => {
             state.isScanning = false;
         },
-        addToDiscoveredDevices: (state, action: PayloadAction<Device>) => {
-            const device = { ...action.payload, lastUpdated: Date.now() } as BleDevice;
+        addToDiscoveredDevices: (state, action: PayloadAction<BleDevice>) => {
+            const device = {
+                ...action.payload,
+                lastUpdated: Date.now(),
+                manufacturerData: action.payload.manufacturerData,
+            };
             bleAdapter.addOne(state, device);
         },
         updateRssiForDevice: (

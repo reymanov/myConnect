@@ -1,7 +1,7 @@
 import React from 'react';
 import { DarkTheme } from '@react-navigation/native';
 import { StyleSheet, TouchableOpacity } from 'react-native';
-import { Button, HStack, Spacer, Text, useColorMode, useTheme, VStack } from 'native-base';
+import { Button, HStack, Spacer, Text, useColorMode, useTheme, View, VStack } from 'native-base';
 import { HapticFeedback } from '@utils/HapticFeedback';
 import { SignalStrength } from '@components/SignalStrength';
 import { BleDevice } from '@store/ble';
@@ -30,7 +30,7 @@ export const DiscoveredDevice: React.FC<Props> = ({
     const backgroundColor = isDarkMode ? DarkTheme.colors.card : colors.white;
     const iconColor = colors.dark[400];
 
-    const { id, name, rssi, lastUpdated } = device;
+    const { id, name, rssi, lastUpdated, manufacturerData } = device;
     const isReachable = Date.now() - lastUpdated < 5000;
 
     const handleButtonPress = () => {
@@ -47,9 +47,15 @@ export const DiscoveredDevice: React.FC<Props> = ({
                 </VStack>
 
                 <VStack space={'md'}>
-                    <ThemedText fontSize={'md'} fontWeight={'medium'}>
-                        {name || 'N/A'}
-                    </ThemedText>
+                    <View>
+                        <ThemedText fontSize={'md'} fontWeight={'medium'}>
+                            {name || 'N/A'}
+                        </ThemedText>
+                        <ThemedText fontSize={'xs'} fontWeight={'light'}>
+                            {manufacturerData.name}
+                        </ThemedText>
+                    </View>
+
                     <HStack alignItems={'center'} space={1}>
                         <Icon name={'signal-cellular-alt'} size={14} color={iconColor} />
                         <ThemedText fontSize={'xs'} fontWeight={'light'}>

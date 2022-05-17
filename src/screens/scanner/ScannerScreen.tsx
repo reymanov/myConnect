@@ -16,6 +16,8 @@ import {
     useSelectIsScanning,
 } from '@store/ble';
 
+import { decodeManufacturerData } from '@utils/BleUtils';
+
 const manager = new BleManager();
 
 export const ScannerScreen = () => {
@@ -37,14 +39,24 @@ export const ScannerScreen = () => {
 
     const scanForDevices = useCallback(() => {
         manager.startDeviceScan(null, { scanMode: ScanMode.LowPower }, async (error, device) => {
-            if (device && device.name) {
-                if (!discoveredDeviceIds.includes(device.id)) {
-                    delete device._manager;
-                    dispatch(bleActions.addToDiscoveredDevices(device));
-                } else {
-                    dispatch(bleActions.updateRssiForDevice({ id: device.id, rssi: device.rssi }));
+            if (!device || !device.name) return;
+
+            if (!discoveredDeviceIds.includes(device.id)) {
+                delete device._manager;
+                if (device.manufacturerData) {
+                    const manufacturerData = decodeManufacturerData(device.manufacturerData);
+
+                    const bleDevice = {
+                        ...device,
+                        manufacturerData,
+                    };
+                    dispatch(bleActions.addToDiscoveredDevices(bleDevice as BleDevice));
+                    console.log(bleDevice);
                 }
+            } else {
+                dispatch(bleActions.updateRssiForDevice({ id: device.id, rssi: device.rssi }));
             }
+
             if (error) {
                 console.log(error);
             }

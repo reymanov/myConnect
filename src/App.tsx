@@ -6,7 +6,6 @@ import { RootNavigator } from '@navigation/navigators';
 import SplashScreen from 'react-native-splash-screen';
 import { Provider } from 'react-redux';
 import { store } from '@src/store';
-import BleHandler from '@utils/BleHandler';
 
 const config = {
     useSystemColorMode: true,
@@ -25,7 +24,6 @@ const App: React.FC = () => {
                 <NativeBaseProvider theme={customTheme}>
                     <StatusBar />
                     <RootNavigator />
-                    <BleHandler />
                 </NativeBaseProvider>
             </Provider>
         </SafeAreaProvider>
