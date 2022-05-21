@@ -3,20 +3,20 @@ import { View, StyleSheet, RefreshControl, FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { DiscoveredDevice } from './components/DiscoveredDevice';
 import { useDispatch } from 'react-redux';
-import { BleManager, ScanMode } from 'react-native-ble-plx';
+import { BleManager } from 'react-native-ble-plx';
 import { HapticFeedback } from '@utils/HapticFeedback';
 import useInterval from '@hooks/useInterval';
 import { MyConnectLogo } from '@components/MyConnectLogo';
 import ThemedContainer from '@components/containers/ThemedContainer';
+import { bleActions, useSelectIsScanning } from '@store/ble';
+
+import { decodeManufacturerData, sanitizeDiscoveredDevice } from '@utils/BleUtils';
 import {
-    bleActions,
     BleDevice,
+    devicesActions,
     useSelectDiscoveredDeviceIds,
     useSelectDiscoveredDevices,
-    useSelectIsScanning,
-} from '@store/ble';
-
-import { decodeManufacturerData } from '@utils/BleUtils';
+} from '@store/devices';
 
 const manager = new BleManager();
 
@@ -27,34 +27,36 @@ export const ScannerScreen = () => {
     const isScanning = useSelectIsScanning();
     const dispatch = useDispatch();
 
-    const navigateToDevice = () => {
-        navigation.navigate('Device');
+    const navigateToDevice = (id: string) => {
+        navigation.navigate('Device', { id });
         dispatch(bleActions.stopScan());
     };
 
     const onRefresh = () => {
         HapticFeedback('impactLight');
-        dispatch(bleActions.clearDiscoveredDevices());
+        dispatch(devicesActions.clearDiscoveredDevices());
     };
 
     const scanForDevices = useCallback(() => {
-        manager.startDeviceScan(null, { scanMode: ScanMode.LowPower }, async (error, device) => {
+        manager.startDeviceScan(null, null, async (error, device) => {
             if (!device || !device.name) return;
+            const { id, rssi, manufacturerData } = device;
+            if (!discoveredDeviceIds.includes(id)) {
+                const bleDevice = sanitizeDiscoveredDevice(device);
+                dispatch(devicesActions.addToDiscovered(bleDevice));
 
-            if (!discoveredDeviceIds.includes(device.id)) {
-                delete device._manager;
-                if (device.manufacturerData) {
-                    const manufacturerData = decodeManufacturerData(device.manufacturerData);
+                if (manufacturerData) {
+                    const manufacturer = decodeManufacturerData(manufacturerData);
 
-                    const bleDevice = {
-                        ...device,
-                        manufacturerData,
+                    const manufacturerUpdate = {
+                        id,
+                        manufacturer,
                     };
-                    dispatch(bleActions.addToDiscoveredDevices(bleDevice as BleDevice));
-                    console.log(bleDevice);
+                    dispatch(devicesActions.updateManufacturerData(manufacturerUpdate));
                 }
             } else {
-                dispatch(bleActions.updateRssiForDevice({ id: device.id, rssi: device.rssi }));
+                if (!rssi) return;
+                dispatch(devicesActions.updateRssi({ id, rssi }));
             }
 
             if (error) {
@@ -87,7 +89,7 @@ export const ScannerScreen = () => {
                         device={item}
                         isScanActive={isScanning}
                         isConnected={false}
-                        onPress={navigateToDevice}
+                        onPress={() => navigateToDevice(item.id)}
                         onButtonPress={() => {}}
                     />
                 )}

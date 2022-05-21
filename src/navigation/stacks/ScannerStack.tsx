@@ -7,9 +7,10 @@ import { Pressable } from 'react-native';
 import { bleActions, useSelectIsScanning } from '@src/store/ble';
 import { useDispatch } from 'react-redux';
 import { HapticFeedback } from '@src/utils/HapticFeedback';
+import { TScannerNavigationProp } from '@navigation/types/TScannerNavigationProp';
 
 export const ScannerStack: React.FC = () => {
-    const Stack = createNativeStackNavigator();
+    const Stack = createNativeStackNavigator<TScannerNavigationProp>();
     const isScanning = useSelectIsScanning();
     const { colorMode } = useColorMode();
     const { colors } = useTheme();

@@ -6,10 +6,6 @@ export const useSelectIsScanning = () => {
     return useSelector((state: AppState) => bleSelectors.selectIsScanning(state));
 };
 
-export const useSelectDiscoveredDevices = () => {
-    return useSelector((state: AppState) => bleSelectors.selectAll(state));
-};
-
-export const useSelectDiscoveredDeviceIds = () => {
-    return useSelector((state: AppState) => bleSelectors.selectIds(state));
+export const useSelectConnectedDevice = () => {
+    return useSelector((state: AppState) => bleSelectors.selectConnectedDevice(state));
 };

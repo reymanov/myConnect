@@ -4,9 +4,9 @@ import { StyleSheet, TouchableOpacity } from 'react-native';
 import { Button, HStack, Spacer, Text, useColorMode, useTheme, View, VStack } from 'native-base';
 import { HapticFeedback } from '@utils/HapticFeedback';
 import { SignalStrength } from '@components/SignalStrength';
-import { BleDevice } from '@store/ble';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import ThemedText from '@components/texts/ThemedText';
+import { BleDevice } from '@store/devices';
 
 interface Props {
     device: BleDevice;
@@ -30,8 +30,8 @@ export const DiscoveredDevice: React.FC<Props> = ({
     const backgroundColor = isDarkMode ? DarkTheme.colors.card : colors.white;
     const iconColor = colors.dark[400];
 
-    const { id, name, rssi, lastUpdated, manufacturerData } = device;
-    const isReachable = Date.now() - lastUpdated < 5000;
+    const { id, name, rssi, updatedAt, manufacturer } = device;
+    const isReachable = Date.now() - updatedAt < 5000;
 
     const handleButtonPress = () => {
         HapticFeedback('impactLight');
@@ -51,9 +51,11 @@ export const DiscoveredDevice: React.FC<Props> = ({
                         <ThemedText fontSize={'md'} fontWeight={'medium'}>
                             {name || 'N/A'}
                         </ThemedText>
-                        <ThemedText fontSize={'xs'} fontWeight={'light'}>
-                            {manufacturerData.name}
-                        </ThemedText>
+                        {manufacturer.name && (
+                            <ThemedText fontSize={'xs'} fontWeight={'light'}>
+                                {manufacturer.name}
+                            </ThemedText>
+                        )}
                     </View>
 
                     <HStack alignItems={'center'} space={1}>

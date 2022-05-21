@@ -1,4 +1,4 @@
-export type TRootNavigator = {
+export type TRootNavigationProp = {
     Home: undefined;
     RSSIGraph: undefined;
     Settings: undefined;

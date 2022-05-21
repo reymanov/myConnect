@@ -4,11 +4,11 @@ import { ScannerStack } from '@navigation/stacks';
 import { useColorMode, useTheme } from 'native-base';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { GraphScreen, SettingsScreen } from '@src/screens';
-import { TRootNavigator } from '../types/TRootNavigator';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { TRootNavigationProp } from '@navigation/types/TRootNavigationProp';
 
 export const RootNavigator: React.FC = () => {
-    const Tab = createBottomTabNavigator<TRootNavigator>();
+    const Tab = createBottomTabNavigator<TRootNavigationProp>();
     const { colorMode } = useColorMode();
     const { colors } = useTheme();
     const isDarkMode = colorMode === 'dark';

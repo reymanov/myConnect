@@ -1,5 +1,6 @@
-import { configureStore } from '@reduxjs/toolkit';
-import ble from './ble/ble';
+import { combineReducers, configureStore } from '@reduxjs/toolkit';
+import ble from './ble';
+import devices from './devices';
 import thunk from 'redux-thunk';
 
 const middlewares = [thunk];
@@ -9,12 +10,15 @@ if (__DEV__) {
     middlewares.push(createDebugger());
 }
 
+const rootReducer = combineReducers({
+    ble,
+    devices,
+});
+
 export const store = configureStore({
-    reducer: {
-        ble,
-    },
+    reducer: rootReducer,
     middleware: middlewares,
 });
 
-export type AppState = ReturnType<typeof store.getState>;
+export type AppState = ReturnType<typeof rootReducer>;
 export type AppDispatch = typeof store.dispatch;
