@@ -1,14 +1,9 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
-import ThemedText from '@components/texts/ThemedText';
-import ThemedContainer from '@components/containers/ThemedContainer';
+import ThemedContainer from '@src/containers/ThemedContainer';
 
 export const SettingsScreen = () => {
-    return (
-        <ThemedContainer style={styles.container}>
-            <ThemedText>Settings</ThemedText>
-        </ThemedContainer>
-    );
+    return <ThemedContainer style={styles.container}></ThemedContainer>;
 };
 
 const styles = StyleSheet.create({

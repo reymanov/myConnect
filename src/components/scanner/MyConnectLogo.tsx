@@ -1,6 +1,6 @@
 import React from 'react';
 import { Center, Text, useColorMode, useTheme, View } from 'native-base';
-import { MyConnectIcon } from '@src/components/icons';
+import { MyConnectIcon } from '@components/general/icons';
 
 export const MyConnectLogo: React.FC = () => {
     const { colorMode } = useColorMode();

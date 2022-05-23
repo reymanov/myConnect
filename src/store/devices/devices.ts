@@ -67,7 +67,7 @@ export const devicesSlice = createSlice({
                 },
             } as Update<BleDevice>);
         },
-        clearDiscoveredDevices: state => {
+        clearDiscovered: state => {
             devicesAdapter.removeAll(state);
         },
     },

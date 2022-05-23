@@ -1,15 +1,18 @@
-import { createSelector, createSlice } from '@reduxjs/toolkit';
+import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { AppState } from '@src/store';
-import { Device } from 'react-native-ble-plx';
 
 export type BleState = {
     isScanning: boolean;
-    connectedDevice: Device | null;
+    scanningStartedAt: number | null;
+    scanningTimeout: number | null;
+    connectedDeviceId: string | null;
 };
 
-const initialState = {
+const initialState: BleState = {
     isScanning: false,
-    connectedDevice: null,
+    scanningStartedAt: null,
+    scanningTimeout: null,
+    connectedDeviceId: null,
 };
 
 export const bleSlice = createSlice({
@@ -18,9 +21,17 @@ export const bleSlice = createSlice({
     reducers: {
         startScan: state => {
             state.isScanning = true;
+            state.scanningStartedAt = Date.now();
         },
         stopScan: state => {
             state.isScanning = false;
+            state.scanningStartedAt = null;
+        },
+        setScanningTimeout: (state, action: PayloadAction<number | null>) => {
+            state.scanningTimeout = action.payload;
+        },
+        selectConnectedDeviceId: (state, action: PayloadAction<string | null>) => {
+            state.connectedDeviceId = action.payload;
         },
     },
 });
@@ -35,13 +46,13 @@ const selectIsScanning = createSelector([selectBleState], state => {
     return state.isScanning;
 });
 
-const selectConnectedDevice = createSelector([selectBleState], state => {
-    return state.connectedDevice;
+const selectConnectedDeviceId = createSelector([selectBleState], state => {
+    return state.connectedDeviceId;
 });
 
 export const bleSelectors = {
     selectIsScanning,
-    selectConnectedDevice,
+    selectConnectedDeviceId,
 };
 
 export default bleSlice.reducer;

@@ -3,15 +3,15 @@ import { DarkTheme } from '@react-navigation/native';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { Button, HStack, Spacer, Text, useColorMode, useTheme, View, VStack } from 'native-base';
 import { HapticFeedback } from '@utils/HapticFeedback';
-import { SignalStrength } from '@components/SignalStrength';
+import { SignalStrength } from '@components/scanner/SignalStrength';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import ThemedText from '@components/texts/ThemedText';
+import ThemedText from '@components/general/texts/ThemedText';
 import { BleDevice } from '@store/devices';
+import { useSelectIsDeviceConnected } from '@store/ble';
 
 interface Props {
     device: BleDevice;
     isScanActive: boolean;
-    isConnected: boolean | null;
     onPress: () => void;
     onButtonPress: (id: string) => void;
 }
@@ -19,7 +19,6 @@ interface Props {
 export const DiscoveredDevice: React.FC<Props> = ({
     device,
     isScanActive,
-    isConnected,
     onPress,
     onButtonPress,
 }) => {
@@ -31,6 +30,7 @@ export const DiscoveredDevice: React.FC<Props> = ({
     const iconColor = colors.dark[400];
 
     const { id, name, rssi, updatedAt, manufacturer } = device;
+    const isConnected = useSelectIsDeviceConnected(id);
     const isReachable = Date.now() - updatedAt < 5000;
 
     const handleButtonPress = () => {

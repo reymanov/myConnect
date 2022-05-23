@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
-import { ScannerStack } from '@navigation/stacks';
+import { ScannerStack } from '@navigation/scanner';
 import { useColorMode, useTheme } from 'native-base';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { GraphScreen, SettingsScreen } from '@src/screens';

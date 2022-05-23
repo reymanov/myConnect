@@ -1,13 +1,13 @@
 import React, { useCallback, useEffect } from 'react';
 import { View, StyleSheet, RefreshControl, FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { DiscoveredDevice } from './components/DiscoveredDevice';
+import { DiscoveredDevice } from '../../components/scanner/DiscoveredDevice';
 import { useDispatch } from 'react-redux';
-import { BleManager } from 'react-native-ble-plx';
+import { BleManager, Device } from 'react-native-ble-plx';
 import { HapticFeedback } from '@utils/HapticFeedback';
 import useInterval from '@hooks/useInterval';
-import { MyConnectLogo } from '@components/MyConnectLogo';
-import ThemedContainer from '@components/containers/ThemedContainer';
+import { MyConnectLogo } from '@components/scanner/MyConnectLogo';
+import ThemedContainer from '@src/containers/ThemedContainer';
 import { bleActions, useSelectIsScanning } from '@store/ble';
 
 import { decodeManufacturerData, sanitizeDiscoveredDevice } from '@utils/BleUtils';
@@ -22,6 +22,7 @@ const manager = new BleManager();
 
 export const ScannerScreen = () => {
     const navigation = useNavigation();
+    const [devices, setDevices] = React.useState<Device[]>([]);
     const discoveredDeviceIds = useSelectDiscoveredDeviceIds();
     const discoveredDevices = useSelectDiscoveredDevices();
     const isScanning = useSelectIsScanning();
@@ -34,7 +35,7 @@ export const ScannerScreen = () => {
 
     const onRefresh = () => {
         HapticFeedback('impactLight');
-        dispatch(devicesActions.clearDiscoveredDevices());
+        dispatch(devicesActions.clearDiscovered());
     };
 
     const scanForDevices = useCallback(() => {
@@ -44,6 +45,7 @@ export const ScannerScreen = () => {
             if (!discoveredDeviceIds.includes(id)) {
                 const bleDevice = sanitizeDiscoveredDevice(device);
                 dispatch(devicesActions.addToDiscovered(bleDevice));
+                setDevices(prevDevices => [...prevDevices, bleDevice]);
 
                 if (manufacturerData) {
                     const manufacturer = decodeManufacturerData(manufacturerData);
@@ -73,6 +75,33 @@ export const ScannerScreen = () => {
 
     useInterval(() => scanForDevices(), isScanning ? 1000 : null);
 
+    const handleButtonPress = async (deviceId: string) => {
+        const device = devices.find(d => d.id === deviceId);
+        if (!device) return;
+
+        const isConnected = await manager.isDeviceConnected(device.id);
+
+        if (isConnected) {
+            try {
+                await manager.cancelDeviceConnection(device.id);
+                dispatch(bleActions.selectConnectedDeviceId(null));
+                HapticFeedback('impactLight');
+            } catch (e) {
+                console.log('Disconnecting error', e);
+            }
+        } else {
+            try {
+                await manager.connectToDevice(device.id);
+                dispatch(bleActions.selectConnectedDeviceId(device.id));
+                HapticFeedback('impactLight');
+
+                navigateToDevice(device.id);
+            } catch (e) {
+                console.log('Connecting error', e);
+            }
+        }
+    };
+
     return (
         <ThemedContainer style={styles.container}>
             <View style={styles.logo}>
@@ -83,16 +112,17 @@ export const ScannerScreen = () => {
                 refreshControl={<RefreshControl refreshing={false} onRefresh={onRefresh} />}
                 keyExtractor={item => item.id}
                 data={discoveredDevices}
-                renderItem={({ item }: { item: BleDevice }) => (
-                    <DiscoveredDevice
-                        key={item.id}
-                        device={item}
-                        isScanActive={isScanning}
-                        isConnected={false}
-                        onPress={() => navigateToDevice(item.id)}
-                        onButtonPress={() => {}}
-                    />
-                )}
+                renderItem={({ item }: { item: BleDevice }) => {
+                    return (
+                        <DiscoveredDevice
+                            key={item.id}
+                            device={item}
+                            isScanActive={isScanning}
+                            onPress={() => navigateToDevice(item.id)}
+                            onButtonPress={() => handleButtonPress(item.id)}
+                        />
+                    );
+                }}
             />
         </ThemedContainer>
     );
