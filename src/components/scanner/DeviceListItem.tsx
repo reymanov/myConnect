@@ -1,24 +1,27 @@
 import React from 'react';
+import { Device } from 'react-native-ble-plx';
 import { DarkTheme } from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { Button, HStack, Spacer, Text, useColorMode, useTheme, View, VStack } from 'native-base';
+
 import { HapticFeedback } from '@utils/HapticFeedback';
-import { SignalStrength } from '@components/scanner/SignalStrength';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import { decodeManufacturerData } from '@utils/BleUtils';
 import ThemedText from '@components/general/texts/ThemedText';
-import { BleDevice } from '@store/devices';
-import { useSelectIsDeviceConnected } from '@store/ble';
+import { SignalStrength } from '@components/scanner/SignalStrength';
 
 interface Props {
-    device: BleDevice;
+    device: Device;
     isScanActive: boolean;
+    isConnected: boolean;
     onPress: () => void;
     onButtonPress: (id: string) => void;
 }
 
-export const DiscoveredDevice: React.FC<Props> = ({
+export const DeviceListItem: React.FC<Props> = ({
     device,
     isScanActive,
+    isConnected,
     onPress,
     onButtonPress,
 }) => {
@@ -29,9 +32,9 @@ export const DiscoveredDevice: React.FC<Props> = ({
     const backgroundColor = isDarkMode ? DarkTheme.colors.card : colors.white;
     const iconColor = colors.dark[400];
 
-    const { id, name, rssi, updatedAt, manufacturer } = device;
-    const isConnected = useSelectIsDeviceConnected(id);
-    const isReachable = Date.now() - updatedAt < 5000;
+    const { id, name, rssi, manufacturerData } = device;
+
+    const manufacturer = decodeManufacturerData(manufacturerData);
 
     const handleButtonPress = () => {
         HapticFeedback('impactLight');
@@ -43,15 +46,15 @@ export const DiscoveredDevice: React.FC<Props> = ({
             <HStack w={'full'} alignItems={'center'} space={4}>
                 <VStack alignItems={'center'} space={1}>
                     <Icon name={'bluetooth'} size={28} color={iconColor} />
-                    <SignalStrength rssi={isScanActive && isReachable ? rssi : null} />
+                    <SignalStrength rssi={isScanActive ? rssi : null} />
                 </VStack>
 
-                <VStack space={'md'}>
+                <VStack flexShrink={1}>
                     <View>
                         <ThemedText fontSize={'md'} fontWeight={'medium'}>
                             {name || 'N/A'}
                         </ThemedText>
-                        {manufacturer.name && (
+                        {manufacturer?.name && (
                             <ThemedText fontSize={'xs'} fontWeight={'light'}>
                                 {manufacturer.name}
                             </ThemedText>
@@ -61,7 +64,7 @@ export const DiscoveredDevice: React.FC<Props> = ({
                     <HStack alignItems={'center'} space={1}>
                         <Icon name={'signal-cellular-alt'} size={14} color={iconColor} />
                         <ThemedText fontSize={'xs'} fontWeight={'light'}>
-                            {isReachable && isScanActive && rssi ? `${rssi} dBm` : 'N/A'}
+                            {isScanActive && rssi ? `${rssi} dBm` : 'N/A'}
                         </ThemedText>
                     </HStack>
                 </VStack>
@@ -83,7 +86,7 @@ const styles = StyleSheet.create({
         minHeight: 80,
         paddingVertical: 8,
         paddingHorizontal: 16,
-        marginBottom: 4,
+        marginBottom: 6,
         flexDirection: 'row',
         justifyContent: 'space-between',
     },

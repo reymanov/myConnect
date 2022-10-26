@@ -1,55 +1,31 @@
-import React, { useDebugValue } from 'react';
-import { StyleSheet } from 'react-native';
-import ThemedText from '@components/general/texts/ThemedText';
-import ThemedContainer from '@src/containers/ThemedContainer';
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
 import { RouteProp, useRoute } from '@react-navigation/native';
+
+import { decodeManufacturerData } from '@utils/BleUtils';
+import ThemedContainer from '@containers/ThemedContainer';
+import ThemedText from '@components/general/texts/ThemedText';
 import { TScannerNavigationProp } from '@navigation/types/TScannerNavigationProp';
-import { useSelectDeviceById } from '@store/devices';
-import { Button, Text, useTheme } from 'native-base';
-import { bleActions, useSelectIsDeviceConnected } from '@store/ble';
-import { BleManager } from 'react-native-ble-plx';
-import { useDispatch } from 'react-redux';
 
-const manager = new BleManager();
-
-export const DeviceScreen = () => {
+export const DeviceScreen: React.FC = () => {
     const route = useRoute<RouteProp<TScannerNavigationProp, 'Device'>>();
-    const device = useSelectDeviceById(route.params.id);
-    const isConnected = useSelectIsDeviceConnected(route.params.id);
-    const { colors } = useTheme();
-    const dispatch = useDispatch();
+    const device = route.params.device;
 
-    const handleButtonPress = async () => {
-        if (!device) return;
-        if (isConnected) {
-            await manager.cancelDeviceConnection(device.id);
-            dispatch(bleActions.selectConnectedDeviceId(null));
-        } else {
-            await manager.connectToDevice(device.id);
-            dispatch(bleActions.selectConnectedDeviceId(device.id));
-            const dev = await manager.discoverAllServicesAndCharacteristicsForDevice(device.id);
-            delete dev._manager;
-            console.log(dev);
-        }
-    };
+    console.log(device);
 
     if (!device) return null;
-    const { name, manufacturer } = device;
+    const { name, manufacturerData } = device;
+    const manufacturer = decodeManufacturerData(manufacturerData);
 
     return (
         <ThemedContainer style={styles.container}>
             <ThemedText>{name}</ThemedText>
-            {manufacturer.name && (
-                <>
+            {manufacturer?.name && (
+                <View>
                     <ThemedText>{manufacturer.name}</ThemedText>
                     <ThemedText>{`<${manufacturer.code}>`}</ThemedText>
-                </>
+                </View>
             )}
-            <Button rounded={'md'} size={'xs'} onPress={handleButtonPress}>
-                <Text color={colors.white} fontWeight={'medium'}>
-                    {isConnected ? 'Disconnect' : 'Connect'}
-                </Text>
-            </Button>
         </ThemedContainer>
     );
 };
