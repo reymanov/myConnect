@@ -1,33 +1,22 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
+import { Text } from 'native-base';
 import { useDispatch } from 'react-redux';
 import { Device } from 'react-native-ble-plx';
-import { DarkTheme, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { View, StyleSheet, RefreshControl, FlatList } from 'react-native';
 
 import useBle from '@hooks/useBle';
+import { useSelectIsScanning } from '@store/ble';
 import { HapticFeedback } from '@utils/HapticFeedback';
 import ThemedContainer from '@containers/ThemedContainer';
-import { useSelectIsScanning } from '@store/ble';
 import { MyConnectLogo } from '@components/scanner/MyConnectLogo';
 import { DeviceListItem } from '@components/scanner/DeviceListItem';
-import ThemedText from '@components/general/texts/ThemedText';
-import { Text } from 'native-base';
-import devices from '@store/devices';
 
 export const ScannerScreen: React.FC = () => {
     const navigation = useNavigation<any>();
     const isScanning = useSelectIsScanning();
-    const dispatch = useDispatch();
 
-    const {
-        allDevices,
-        connectedDevice,
-        scanForPeripherals,
-        connectToDevice,
-        disconnectFromDevice,
-        stopScan,
-        clearDevices,
-    } = useBle();
+    const { allDevices, scanForPeripherals, stopScan, clearDevices } = useBle();
 
     const navigateToDevice = (device: Device) => {
         navigation.navigate('Device', { device });
@@ -42,26 +31,6 @@ export const ScannerScreen: React.FC = () => {
         if (isScanning) scanForPeripherals();
         else stopScan();
     }, [isScanning]);
-
-    const handleButtonPress = async (deviceId: string) => {
-        const device = allDevices.find(d => d.id === deviceId);
-        if (!device) return;
-        const isConnected = connectedDevice?.id === deviceId;
-        if (isConnected) {
-            try {
-                disconnectFromDevice();
-            } catch (e) {
-                console.error('Disconnecting error', e);
-            }
-        } else {
-            try {
-                await connectToDevice(device);
-                navigateToDevice(device);
-            } catch (e) {
-                console.error('Connecting error', e);
-            }
-        }
-    };
 
     return (
         <ThemedContainer style={styles.container}>

@@ -1,7 +1,8 @@
-import { bleActions } from '@store/ble';
 import { useRef, useState } from 'react';
-import { BleManager, Device } from 'react-native-ble-plx';
 import { useDispatch } from 'react-redux';
+import { BleManager, Device } from 'react-native-ble-plx';
+
+import { bleActions } from '@store/ble';
 
 interface BluetoothLowEnergyAPI {
     allDevices: Device[];
@@ -15,6 +16,10 @@ interface BluetoothLowEnergyAPI {
 
 const bleManager = new BleManager();
 const SCAN_INTERVAL = 2000;
+
+const _l = (...args: any) => {
+    console.log(...args);
+};
 
 const useBle = (): BluetoothLowEnergyAPI => {
     const [allDevices, setAllDevices] = useState<Device[]>([]);
@@ -47,18 +52,15 @@ const useBle = (): BluetoothLowEnergyAPI => {
     };
 
     const stopScan = () => {
-        console.log('before', scanInterval.current);
         if (scanInterval.current) {
             clearInterval(scanInterval.current);
             scanInterval.current = null;
         }
-        console.log('after', scanInterval.current);
         bleManager.stopDeviceScan();
     };
 
     const clearDevices = () => {
         setAllDevices([]);
-        console.log(scanInterval.current);
     };
 
     const connectToDevice = async (device: Device) => {
@@ -66,9 +68,6 @@ const useBle = (): BluetoothLowEnergyAPI => {
             await bleManager.connectToDevice(device.id);
             setConnectedDevice(device);
             await device.discoverAllServicesAndCharacteristics();
-            const services = await device.services();
-            const characteristics = await device.characteristicsForService(services[0].uuid);
-            // console.log('Characteristics', characteristics);
             bleManager.stopDeviceScan();
             dispatch(bleActions.stopScan());
         } catch (e) {
@@ -81,11 +80,6 @@ const useBle = (): BluetoothLowEnergyAPI => {
             bleManager.cancelDeviceConnection(connectedDevice.id);
             setConnectedDevice(null);
         }
-    };
-
-    const readFromDevice = async (device: Device) => {
-        if (!device) return;
-        device.monitorCharacteristicForService('', '', () => {});
     };
 
     return {
@@ -105,73 +99,3 @@ export default useBle;
 // 2. Discover all services and characteristics
 // 3. Get services
 // 4. Get characteristics for service
-
-// [
-//     {
-//         _manager: {
-//             _activePromises: [Object],
-//             _activeSubscriptions: [Object],
-//             _errorCodesToMessagesMapping: [Object],
-//             _eventEmitter: [NativeEventEmitter],
-//             _scanEventSubscription: [Object],
-//             _uniqueId: 4,
-//         },
-//         deviceID: 'E3775F09-4DBC-DBA3-3089-3A321846B553',
-//         id: 10784944384,
-//         isPrimary: true,
-//         uuid: 'd0611e78-bbb4-4591-a5f8-487910ae4366',
-//     },
-//     {
-//         _manager: {
-//             _activePromises: [Object],
-//             _activeSubscriptions: [Object],
-//             _errorCodesToMessagesMapping: [Object],
-//             _eventEmitter: [NativeEventEmitter],
-//             _scanEventSubscription: [Object],
-//             _uniqueId: 4,
-//         },
-//         deviceID: 'E3775F09-4DBC-DBA3-3089-3A321846B553',
-//         id: 10784936256,
-//         isPrimary: true,
-//         uuid: '9fa480e0-4967-4542-9390-d343dc5d04ae',
-//     },
-//     {
-//         _manager: {
-//             _activePromises: [Object],
-//             _activeSubscriptions: [Object],
-//             _errorCodesToMessagesMapping: [Object],
-//             _eventEmitter: [NativeEventEmitter],
-//             _scanEventSubscription: [Object],
-//             _uniqueId: 4,
-//         },
-//         deviceID: 'E3775F09-4DBC-DBA3-3089-3A321846B553',
-//         id: 10784960768,
-//         isPrimary: true,
-//         uuid: '0000180a-0000-1000-8000-00805f9b34fb',
-//     },
-// ];
-
-// [
-//     {
-//         _manager: {
-//             _activePromises: [Object],
-//             _activeSubscriptions: [Object],
-//             _errorCodesToMessagesMapping: [Object],
-//             _eventEmitter: [NativeEventEmitter],
-//             _scanEventSubscription: [Object],
-//             _uniqueId: 5,
-//         },
-//         deviceID: 'E3775F09-4DBC-DBA3-3089-3A321846B553',
-//         id: 10769212704,
-//         isIndicatable: false,
-//         isNotifiable: true,
-//         isNotifying: false,
-//         isReadable: false,
-//         isWritableWithResponse: true,
-//         isWritableWithoutResponse: false,
-//         serviceID: 10786857728,
-//         serviceUUID: 'd0611e78-bbb4-4591-a5f8-487910ae4366',
-//         uuid: '8667556c-9a37-4c91-84ed-54ee27d90049',
-//         value: null,
-//     },
-// ];
