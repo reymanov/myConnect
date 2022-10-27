@@ -3,9 +3,8 @@ import { Device } from 'react-native-ble-plx';
 import { DarkTheme } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { StyleSheet, TouchableOpacity } from 'react-native';
-import { Button, HStack, Spacer, Text, useColorMode, useTheme, View, VStack } from 'native-base';
+import { HStack, Spacer, useColorMode, useTheme, View, VStack } from 'native-base';
 
-import { HapticFeedback } from '@utils/HapticFeedback';
 import { decodeManufacturerData } from '@utils/BleUtils';
 import ThemedText from '@components/general/texts/ThemedText';
 import { SignalStrength } from '@components/scanner/SignalStrength';
@@ -13,18 +12,10 @@ import { SignalStrength } from '@components/scanner/SignalStrength';
 interface Props {
     device: Device;
     isScanActive: boolean;
-    isConnected: boolean;
     onPress: () => void;
-    onButtonPress: (id: string) => void;
 }
 
-export const DeviceListItem: React.FC<Props> = ({
-    device,
-    isScanActive,
-    isConnected,
-    onPress,
-    onButtonPress,
-}) => {
+export const DeviceListItem: React.FC<Props> = ({ device, isScanActive, onPress }) => {
     const { colorMode } = useColorMode();
     const { colors } = useTheme();
 
@@ -35,11 +26,6 @@ export const DeviceListItem: React.FC<Props> = ({
     const { id, name, rssi, manufacturerData } = device;
 
     const manufacturer = decodeManufacturerData(manufacturerData);
-
-    const handleButtonPress = () => {
-        HapticFeedback('impactLight');
-        onButtonPress(id);
-    };
 
     return (
         <TouchableOpacity style={[styles.item, { backgroundColor }]} onPress={onPress}>
@@ -55,10 +41,11 @@ export const DeviceListItem: React.FC<Props> = ({
                             {name || 'N/A'}
                         </ThemedText>
                         {manufacturer?.name && (
-                            <ThemedText fontSize={'xs'} fontWeight={'light'}>
-                                {manufacturer.name}
-                            </ThemedText>
+                            <ThemedText fontSize={'xs'}>{manufacturer.name}</ThemedText>
                         )}
+                        <ThemedText fontSize={'xs'} color={'gray.500'}>
+                            {id}
+                        </ThemedText>
                     </View>
 
                     <HStack alignItems={'center'} space={1}>
@@ -70,12 +57,6 @@ export const DeviceListItem: React.FC<Props> = ({
                 </VStack>
 
                 <Spacer />
-
-                <Button rounded={'md'} size={'xs'} onPress={handleButtonPress}>
-                    <Text color={colors.white} fontWeight={'medium'}>
-                        {isConnected ? 'Disconnect' : 'Connect'}
-                    </Text>
-                </Button>
             </HStack>
         </TouchableOpacity>
     );

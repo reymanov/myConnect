@@ -11,8 +11,6 @@ export const DeviceScreen: React.FC = () => {
     const route = useRoute<RouteProp<TScannerNavigationProp, 'Device'>>();
     const device = route.params.device;
 
-    console.log(device);
-
     if (!device) return null;
     const { name, manufacturerData } = device;
     const manufacturer = decodeManufacturerData(manufacturerData);

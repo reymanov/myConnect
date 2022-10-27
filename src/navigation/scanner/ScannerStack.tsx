@@ -1,12 +1,13 @@
 import React from 'react';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { DeviceScreen, ScannerScreen } from '@src/screens';
-import Icon from 'react-native-vector-icons/FontAwesome5';
-import { useColorMode, useTheme } from 'native-base';
 import { Pressable } from 'react-native';
-import { bleActions, useSelectIsScanning } from '@src/store/ble';
 import { useDispatch } from 'react-redux';
-import { HapticFeedback } from '@src/utils/HapticFeedback';
+import { useColorMode, useTheme } from 'native-base';
+import Icon from 'react-native-vector-icons/FontAwesome5';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
+import { HapticFeedback } from '@utils/HapticFeedback';
+import { DeviceScreen, ScannerScreen } from '@screens/index';
+import { bleActions, useSelectIsScanning } from '@store/ble';
 import { TScannerNavigationProp } from '@navigation/types/TScannerNavigationProp';
 
 export const ScannerStack: React.FC = () => {
@@ -53,7 +54,11 @@ export const ScannerStack: React.FC = () => {
                     ),
                 }}
             />
-            <Stack.Screen name="Device" component={DeviceScreen} />
+            <Stack.Screen
+                name="Device"
+                component={DeviceScreen}
+                options={({ route }) => ({ title: route.params.device.name || 'Device' })}
+            />
         </Stack.Navigator>
     );
 };

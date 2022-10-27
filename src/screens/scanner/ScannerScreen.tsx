@@ -1,18 +1,21 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { Device } from 'react-native-ble-plx';
-import { useNavigation } from '@react-navigation/native';
+import { DarkTheme, useNavigation } from '@react-navigation/native';
 import { View, StyleSheet, RefreshControl, FlatList } from 'react-native';
 
 import useBle from '@hooks/useBle';
 import { HapticFeedback } from '@utils/HapticFeedback';
 import ThemedContainer from '@containers/ThemedContainer';
-import { bleActions, useSelectIsScanning } from '@store/ble';
+import { useSelectIsScanning } from '@store/ble';
 import { MyConnectLogo } from '@components/scanner/MyConnectLogo';
 import { DeviceListItem } from '@components/scanner/DeviceListItem';
+import ThemedText from '@components/general/texts/ThemedText';
+import { Text } from 'native-base';
+import devices from '@store/devices';
 
 export const ScannerScreen: React.FC = () => {
-    const navigation = useNavigation();
+    const navigation = useNavigation<any>();
     const isScanning = useSelectIsScanning();
     const dispatch = useDispatch();
 
@@ -47,17 +50,13 @@ export const ScannerScreen: React.FC = () => {
         if (isConnected) {
             try {
                 disconnectFromDevice();
-                dispatch(bleActions.selectConnectedDeviceId(null));
-                HapticFeedback('impactLight');
             } catch (e) {
                 console.error('Disconnecting error', e);
             }
         } else {
             try {
                 await connectToDevice(device);
-                dispatch(bleActions.stopScan());
-                HapticFeedback('impactLight');
-                // navigateToDevice(device.id);
+                navigateToDevice(device);
             } catch (e) {
                 console.error('Connecting error', e);
             }
@@ -70,6 +69,15 @@ export const ScannerScreen: React.FC = () => {
                 <MyConnectLogo />
             </View>
 
+            <View style={styles.header}>
+                <Text fontWeight={'medium'} color={'dark.600'}>
+                    Select device
+                </Text>
+                <Text fontWeight={'medium'} color={'dark.600'}>
+                    Discovered: {allDevices.length}
+                </Text>
+            </View>
+
             <FlatList
                 refreshControl={<RefreshControl refreshing={false} onRefresh={onRefresh} />}
                 keyExtractor={item => item.id}
@@ -80,9 +88,7 @@ export const ScannerScreen: React.FC = () => {
                             key={item.id}
                             device={item}
                             isScanActive={isScanning}
-                            isConnected={connectedDevice?.id === item.id}
                             onPress={() => navigateToDevice(item)}
-                            onButtonPress={() => handleButtonPress(item.id)}
                         />
                     );
                 }}
@@ -94,7 +100,13 @@ export const ScannerScreen: React.FC = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingTop: 32,
+    },
+    header: {
+        height: 42,
+        flexDirection: 'row',
+        paddingHorizontal: 16,
+        alignItems: 'center',
+        justifyContent: 'space-between',
     },
     logo: {
         ...StyleSheet.absoluteFillObject,
