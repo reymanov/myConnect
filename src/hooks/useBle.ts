@@ -1,8 +1,9 @@
 import { useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { BleManager, Device } from 'react-native-ble-plx';
+import { BleManager, Characteristic, Device, Service } from 'react-native-ble-plx';
 
 import { bleActions } from '@store/ble';
+import { Alert } from 'react-native';
 
 interface BluetoothLowEnergyAPI {
     allDevices: Device[];
@@ -12,14 +13,13 @@ interface BluetoothLowEnergyAPI {
     clearDevices(): void;
     connectToDevice: (device: Device) => Promise<void>;
     disconnectFromDevice: () => void;
+    discoverAllServicesAndCharacteristics: (
+        device: Device
+    ) => Promise<{ services: Service[]; characteristics: Characteristic[] } | undefined>;
 }
 
 const bleManager = new BleManager();
 const SCAN_INTERVAL = 2000;
-
-const _l = (...args: any) => {
-    console.log(...args);
-};
 
 const useBle = (): BluetoothLowEnergyAPI => {
     const [allDevices, setAllDevices] = useState<Device[]>([]);
@@ -56,6 +56,7 @@ const useBle = (): BluetoothLowEnergyAPI => {
             clearInterval(scanInterval.current);
             scanInterval.current = null;
         }
+        dispatch(bleActions.stopScan());
         bleManager.stopDeviceScan();
     };
 
@@ -65,13 +66,12 @@ const useBle = (): BluetoothLowEnergyAPI => {
 
     const connectToDevice = async (device: Device) => {
         try {
-            await bleManager.connectToDevice(device.id);
+            await bleManager.connectToDevice(device.id, { timeout: 5000 });
             setConnectedDevice(device);
-            await device.discoverAllServicesAndCharacteristics();
             bleManager.stopDeviceScan();
             dispatch(bleActions.stopScan());
         } catch (e) {
-            console.error('Failed to connect to device', e);
+            throw e;
         }
     };
 
@@ -79,6 +79,26 @@ const useBle = (): BluetoothLowEnergyAPI => {
         if (connectedDevice) {
             bleManager.cancelDeviceConnection(connectedDevice.id);
             setConnectedDevice(null);
+        }
+    };
+
+    const discoverAllServicesAndCharacteristics = async (device: Device) => {
+        try {
+            await device.discoverAllServicesAndCharacteristics();
+            const services = await device.services();
+            const characteristics = await Promise.all(
+                services.map(async service => {
+                    const chars = await service.characteristics();
+                    return chars;
+                })
+            );
+
+            return {
+                services,
+                characteristics: characteristics.flat(),
+            };
+        } catch (e) {
+            console.error('Failed to discover services and characteristics', e);
         }
     };
 
@@ -90,6 +110,7 @@ const useBle = (): BluetoothLowEnergyAPI => {
         clearDevices,
         connectToDevice,
         disconnectFromDevice,
+        discoverAllServicesAndCharacteristics,
     };
 };
 

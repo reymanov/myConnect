@@ -5,7 +5,7 @@ import { useColorMode, useTheme } from 'native-base';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-import { HapticFeedback } from '@utils/HapticFeedback';
+import { triggerHapticFeedback } from '@utils/HapticFeedback';
 import { DeviceScreen, ScannerScreen } from '@screens/index';
 import { bleActions, useSelectIsScanning } from '@store/ble';
 import { TScannerNavigationProp } from '@navigation/types/TScannerNavigationProp';
@@ -20,12 +20,12 @@ export const ScannerStack: React.FC = () => {
     const iconColor = isDarkMode ? colors.dark[900] : colors.black;
 
     const startScan = () => {
-        HapticFeedback('notificationSuccess');
+        triggerHapticFeedback('notificationSuccess');
         dispatch(bleActions.startScan());
     };
 
     const stopScan = () => {
-        HapticFeedback('impactHeavy');
+        triggerHapticFeedback('impactHeavy');
         dispatch(bleActions.stopScan());
     };
 

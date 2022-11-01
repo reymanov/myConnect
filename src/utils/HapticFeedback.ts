@@ -5,5 +5,5 @@ const options = {
     ignoreAndroidSystemSettings: false,
 };
 
-export const HapticFeedback = (type: HapticFeedbackTypes) =>
+export const triggerHapticFeedback = (type: HapticFeedbackTypes) =>
     ReactNativeHapticFeedback.trigger(type, options);
