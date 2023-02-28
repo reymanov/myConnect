@@ -3,7 +3,6 @@ module.exports = api => {
     const plugins = [
         [
             'module-resolver',
-            'react-native-reanimated/plugin',
             {
                 root: ['./'],
                 alias: {
@@ -24,6 +23,6 @@ module.exports = api => {
 
     return {
         presets: ['module:metro-react-native-babel-preset'],
-        plugins: [...plugins],
+        plugins: [...plugins, 'react-native-reanimated/plugin'],
     };
 };
