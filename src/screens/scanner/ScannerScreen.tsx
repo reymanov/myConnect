@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import { Text } from 'native-base';
 import { Device } from 'react-native-ble-plx';
 import { useNavigation } from '@react-navigation/native';
 import { View, StyleSheet, RefreshControl, FlatList } from 'react-native';
@@ -24,6 +23,7 @@ export const ScannerScreen: React.FC = () => {
 
     const onRefresh = () => {
         triggerHapticFeedback('impactLight');
+        stopScan();
         clearDevices();
     };
 
@@ -38,11 +38,8 @@ export const ScannerScreen: React.FC = () => {
                 <MyConnectLogo />
             </View>
 
-            <View style={styles.header}>
-                <Text fontWeight={'medium'}>Count: {allDevices.length}</Text>
-            </View>
-
             <FlatList
+                style={styles.list}
                 refreshControl={<RefreshControl refreshing={false} onRefresh={onRefresh} />}
                 keyExtractor={item => item.id}
                 data={allDevices}
@@ -71,6 +68,9 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         alignItems: 'center',
         justifyContent: 'flex-end',
+    },
+    list: {
+        paddingTop: 16,
     },
     logo: {
         ...StyleSheet.absoluteFillObject,

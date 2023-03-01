@@ -1,6 +1,6 @@
 import React from 'react';
-import { Text } from 'native-base';
-import Icon from 'react-native-vector-icons/FontAwesome5';
+import { Text, useColorMode, useTheme } from 'native-base';
+import Icon from 'react-native-vector-icons/Ionicons';
 import { Characteristic, Service } from 'react-native-ble-plx';
 import { Pressable, StyleSheet, View } from 'react-native';
 import Animated, {
@@ -19,14 +19,19 @@ import { AccordionItem } from './AccordionItem';
 
 interface Props {
     service: Service;
-    characterstics: Characteristic[];
+    characteristics: Characteristic[];
 }
 
-export const Accordion: React.FC<Props> = ({ service, characterstics }) => {
+export const Accordion: React.FC<Props> = ({ service, characteristics }) => {
     const aref = useAnimatedRef<View>();
     const open = useSharedValue(false);
     const progress = useDerivedValue(() => (open.value ? withSpring(1) : withTiming(0)));
     const height = useSharedValue(0);
+    const { colorMode } = useColorMode();
+    const { colors } = useTheme();
+
+    const iconColor = colorMode === 'dark' ? colors.white : colors.black;
+    const backgroundColor = colorMode === 'dark' ? colors.dark[100] : colors.white;
 
     const headerStyle = useAnimatedStyle(() => ({
         borderBottomLeftRadius: progress.value === 0 ? 8 : 0,
@@ -50,7 +55,7 @@ export const Accordion: React.FC<Props> = ({ service, characterstics }) => {
             runOnUI(() => {
                 'worklet';
                 const m = measure(aref);
-                height.value = m.height;
+                height.value = m!.height;
             })();
         }
         open.value = !open.value;
@@ -59,22 +64,26 @@ export const Accordion: React.FC<Props> = ({ service, characterstics }) => {
     return (
         <>
             <Pressable onPress={onHeaderPress}>
-                <Animated.View style={[styles.container, headerStyle]}>
-                    <Text>{service.id}</Text>
+                <Animated.View style={[styles.container, { backgroundColor }, headerStyle]}>
+                    <View>
+                        <Text fontWeight={600}>
+                            Unknown Service {service.isPrimary ? '- Primary' : null}
+                        </Text>
+                        <Text numberOfLines={1}>UUID: {service.uuid}</Text>
+                    </View>
                     <Animated.View style={iconStyle}>
-                        <Icon name={'chevron-forward-outline'} size={20} />
+                        <Icon name={'chevron-down-outline'} size={20} color={iconColor} />
                     </Animated.View>
                 </Animated.View>
             </Pressable>
 
             <Animated.View style={[styles.items, listStyle]}>
                 <View ref={aref} collapsable={false}>
-                    {characterstics.map((item, index) => (
+                    {characteristics.map((item, index) => (
                         <AccordionItem
                             key={item.id}
                             characteristic={item}
-                            onPress={() => {}}
-                            isLast={index === characterstics.length - 1}
+                            isLast={index === characteristics.length - 1}
                         />
                     ))}
                 </View>
@@ -85,8 +94,7 @@ export const Accordion: React.FC<Props> = ({ service, characterstics }) => {
 
 const styles = StyleSheet.create({
     container: {
-        marginTop: 16,
-        backgroundColor: 'gray',
+        marginTop: 2,
         padding: 16,
         borderTopLeftRadius: 8,
         borderTopRightRadius: 8,

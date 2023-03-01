@@ -18,7 +18,7 @@ const SignalItem: React.FC<ItemProps> = ({ height, isActive }) => {
     const darkActive = {
         borderWidth: 2,
         borderColor: colors.dark[100],
-        backgroundColor: colors.dark[400],
+        backgroundColor: colors.cyan[600],
     };
 
     const light = {
@@ -28,7 +28,7 @@ const SignalItem: React.FC<ItemProps> = ({ height, isActive }) => {
     const lightActive = {
         borderWidth: 2,
         borderColor: colors.dark[700],
-        backgroundColor: colors.dark[400],
+        backgroundColor: colors.cyan[600],
     };
 
     const disabled = isDarkMode ? dark : light;

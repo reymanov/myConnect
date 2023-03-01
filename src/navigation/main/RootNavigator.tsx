@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { ScannerStack } from '@navigation/scanner';
-import { useColorMode, useTheme } from 'native-base';
+import { StatusBar, useColorMode, useTheme } from 'native-base';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { GraphScreen, SettingsScreen } from '@src/screens';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -17,6 +17,7 @@ export const RootNavigator: React.FC = () => {
     const inactiveTintColor = colors.dark[500];
     return (
         <NavigationContainer theme={isDarkMode ? DarkTheme : DefaultTheme}>
+            <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
             <Tab.Navigator
                 screenOptions={({ route }) => ({
                     tabBarActiveTintColor: activeTintColor,

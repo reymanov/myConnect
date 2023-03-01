@@ -1,6 +1,14 @@
 import React, { useState } from 'react';
-import { Button, Text } from 'native-base';
-import { Alert, StyleSheet, View } from 'react-native';
+import {
+    Button,
+    ScrollView,
+    Text,
+    useClipboard,
+    useColorMode,
+    useTheme,
+    useToast,
+} from 'native-base';
+import { Alert, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { Characteristic, Service } from 'react-native-ble-plx';
 
@@ -10,12 +18,19 @@ import { decodeManufacturerData } from '@utils/BleUtils';
 import ThemedContainer from '@containers/ThemedContainer';
 import { triggerHapticFeedback } from '@utils/HapticFeedback';
 import { TScannerNavigationProp } from '@navigation/types/TScannerNavigationProp';
+import { Accordion } from './components/Accordion';
 
 export const DeviceScreen: React.FC = () => {
     const route = useRoute<RouteProp<TScannerNavigationProp, 'Device'>>();
     const [isConnecting, setIsConnecting] = useState(false);
+    const [isDiscovering, setIsDiscovering] = useState(false);
     const [services, setServices] = useState<Service[] | []>([]);
     const [characteristics, setCharacteristics] = useState<Characteristic[] | []>([]);
+    const { colorMode } = useColorMode();
+    const { onCopy } = useClipboard();
+    const { colors } = useTheme();
+    const toast = useToast();
+
     const device = route.params.device;
 
     const {
@@ -26,6 +41,8 @@ export const DeviceScreen: React.FC = () => {
     } = useBle();
 
     if (!device) return null;
+
+    const backgroundColor = colorMode === 'dark' ? colors.gray[800] : colors.white;
 
     const { id, name, manufacturerData } = device;
     const manufacturer = decodeManufacturerData(manufacturerData);
@@ -47,13 +64,12 @@ export const DeviceScreen: React.FC = () => {
 
     const onDisconnect = async () => {
         disconnectFromDevice();
-        setServices([]);
-        setCharacteristics([]);
         triggerHapticFeedback('impactLight');
     };
 
     const onDiscoverServicesAndCharacteristics = async () => {
         try {
+            setIsDiscovering(true);
             const data = await discoverAllServicesAndCharacteristics(device);
             if (!data) return;
 
@@ -62,8 +78,27 @@ export const DeviceScreen: React.FC = () => {
             setCharacteristics(characteristics);
         } catch (e) {
             console.error('Discovering services and characteristics error', e);
+        } finally {
+            setIsDiscovering(false);
         }
     };
+
+    const copyToClipboard = async (text: string | null) => {
+        if (!text) return;
+        try {
+            await onCopy(text);
+            triggerHapticFeedback('notificationSuccess');
+            toast.show({
+                description: 'Copied to clipboard ✓',
+                placement: 'top',
+                duration: 1500,
+            });
+        } catch (e) {
+            console.error('Copying to clipboard error', e);
+        }
+    };
+
+    const manufacturerText = manufacturer ? `${manufacturer.name} <${manufacturer.code}>` : 'N/A';
 
     return (
         <ThemedContainer style={styles.container}>
@@ -75,12 +110,12 @@ export const DeviceScreen: React.FC = () => {
                     onPress={onConnect}
                 >
                     {isConnecting ? (
-                        <Text>
+                        <Text color={'#fff'}>
                             Connecting
                             <AnimatedDots color={'#fff'} />
                         </Text>
                     ) : (
-                        <Text>Connect</Text>
+                        <Text color={'#fff'}>Connect</Text>
                     )}
                 </Button>
                 <Button style={styles.button} isDisabled={!isConnected} onPress={onDisconnect}>
@@ -88,38 +123,39 @@ export const DeviceScreen: React.FC = () => {
                 </Button>
                 <Button
                     style={styles.button}
-                    isDisabled={!isConnected}
+                    isDisabled={!isConnected || isDiscovering}
                     onPress={onDiscoverServicesAndCharacteristics}
                 >
                     Discover services
                 </Button>
             </View>
 
-            <View style={styles.informations}>
-                <Text>{name}</Text>
-                <Text>{id}</Text>
-                {manufacturer?.name && (
-                    <>
-                        <Text>{manufacturer.name}</Text>
-                        <Text>{`<${manufacturer.code}>`}</Text>
-                    </>
-                )}
+            <ScrollView style={styles.informations}>
+                <Text>Device</Text>
+                <View style={[styles.section, { backgroundColor }]}>
+                    <Text fontSize={18} fontWeight={500} lineHeight={28}>
+                        {name}
+                    </Text>
+                    <Text fontSize={14} fontWeight={500}>
+                        {id}
+                    </Text>
+                </View>
 
-                {/* Render a list of services with sublist of characteristics */}
-                <Text>Services</Text>
+                <Text>Manufacturer</Text>
+                <View style={[styles.section, { backgroundColor }]}>
+                    <Text fontSize={16} fontWeight={500}>
+                        {manufacturer?.name}
+                    </Text>
+                    <Text fontSize={14} fontWeight={500}>
+                        {`<${manufacturer?.code}>`}
+                    </Text>
+                </View>
+
+                <Text>Attributes</Text>
                 {services.map(service => (
-                    <View key={service.uuid}>
-                        <Text>{service.uuid}</Text>
-                        {characteristics
-                            .filter(characteristic => characteristic.serviceUUID === service.uuid)
-                            .map(characteristic => (
-                                <Text color={'gray.500'} key={characteristic.uuid}>
-                                    {characteristic.uuid}
-                                </Text>
-                            ))}
-                    </View>
+                    <Accordion service={service} characteristics={characteristics} />
                 ))}
-            </View>
+            </ScrollView>
         </ThemedContainer>
     );
 };
@@ -128,12 +164,20 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 16,
+        paddingBottom: 0,
     },
     informations: {
-        marginTop: 32,
+        paddingTop: 24,
         flex: 1,
-        alignItems: 'center',
+    },
+    section: {
+        width: '100%',
         justifyContent: 'center',
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        borderRadius: 8,
+        marginTop: 2,
+        marginBottom: 12,
     },
     buttons: {
         width: '100%',
@@ -141,6 +185,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
     },
     button: {
-        minWidth: '26%',
+        minWidth: '28%',
+        borderRadius: 8,
     },
 });

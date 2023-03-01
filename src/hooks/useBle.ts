@@ -56,8 +56,8 @@ const useBle = (): BluetoothLowEnergyAPI => {
             clearInterval(scanInterval.current);
             scanInterval.current = null;
         }
-        dispatch(bleActions.stopScan());
         bleManager.stopDeviceScan();
+        dispatch(bleActions.stopScan());
     };
 
     const clearDevices = () => {
