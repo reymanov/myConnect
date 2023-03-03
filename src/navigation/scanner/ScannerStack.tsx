@@ -35,7 +35,7 @@ export const ScannerStack: React.FC = () => {
                 headerShadowVisible: false,
                 headerTitleStyle: { fontSize: 18, color: isDarkMode ? colors.white : colors.black },
                 headerBackTitle: 'Back',
-                headerTintColor: colors.primary[600],
+                headerTintColor: colors.primary[700],
             }}
         >
             <Stack.Screen
@@ -48,7 +48,9 @@ export const ScannerStack: React.FC = () => {
                                 name={isScanning ? 'stop' : 'play'}
                                 size={18}
                                 color={iconColor}
-                                style={{ padding: 8 }}
+                                style={{
+                                    padding: 8,
+                                }}
                             />
                         </Pressable>
                     ),

@@ -15,3 +15,9 @@ export const decodeManufacturerData = (data: string | null): Manufacturer | null
         data: manufacturerData,
     };
 };
+
+export const base64ToHex = (base64: string) => {
+    const buffer = Buffer.from(base64, 'base64');
+    const bufString = buffer.toString('hex');
+    return '0x' + bufString.toUpperCase();
+};

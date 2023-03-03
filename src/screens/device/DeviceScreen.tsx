@@ -1,35 +1,24 @@
 import React, { useState } from 'react';
-import {
-    Button,
-    ScrollView,
-    Text,
-    useClipboard,
-    useColorMode,
-    useTheme,
-    useToast,
-} from 'native-base';
-import { Alert, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { RouteProp, useRoute } from '@react-navigation/native';
-import { Characteristic, Service } from 'react-native-ble-plx';
+import { Service } from 'react-native-ble-plx';
+import { DarkTheme, RouteProp, useRoute } from '@react-navigation/native';
+import { ActivityIndicator, Alert, StyleSheet, View } from 'react-native';
+import { Button, ScrollView, Text, useColorMode, useTheme } from 'native-base';
 
 import useBle from '@hooks/useBle';
+import { Accordion } from './components/Accordion';
 import { AnimatedDots } from '@components/animated';
 import { decodeManufacturerData } from '@utils/BleUtils';
 import ThemedContainer from '@containers/ThemedContainer';
 import { triggerHapticFeedback } from '@utils/HapticFeedback';
 import { TScannerNavigationProp } from '@navigation/types/TScannerNavigationProp';
-import { Accordion } from './components/Accordion';
 
 export const DeviceScreen: React.FC = () => {
     const route = useRoute<RouteProp<TScannerNavigationProp, 'Device'>>();
     const [isConnecting, setIsConnecting] = useState(false);
     const [isDiscovering, setIsDiscovering] = useState(false);
     const [services, setServices] = useState<Service[] | []>([]);
-    const [characteristics, setCharacteristics] = useState<Characteristic[] | []>([]);
     const { colorMode } = useColorMode();
-    const { onCopy } = useClipboard();
     const { colors } = useTheme();
-    const toast = useToast();
 
     const device = route.params.device;
 
@@ -42,7 +31,7 @@ export const DeviceScreen: React.FC = () => {
 
     if (!device) return null;
 
-    const backgroundColor = colorMode === 'dark' ? colors.gray[800] : colors.white;
+    const backgroundColor = colorMode === 'dark' ? DarkTheme.colors.card : colors.white;
 
     const { id, name, manufacturerData } = device;
     const manufacturer = decodeManufacturerData(manufacturerData);
@@ -64,6 +53,8 @@ export const DeviceScreen: React.FC = () => {
 
     const onDisconnect = async () => {
         disconnectFromDevice();
+        setServices([]);
+
         triggerHapticFeedback('impactLight');
     };
 
@@ -72,33 +63,15 @@ export const DeviceScreen: React.FC = () => {
             setIsDiscovering(true);
             const data = await discoverAllServicesAndCharacteristics(device);
             if (!data) return;
-
-            const { services, characteristics } = data;
-            setServices(services);
-            setCharacteristics(characteristics);
+            setServices(data.services);
         } catch (e) {
-            console.error('Discovering services and characteristics error', e);
+            console.error('Discovering services error', e);
         } finally {
-            setIsDiscovering(false);
+            setTimeout(() => {
+                setIsDiscovering(false);
+            }, 500);
         }
     };
-
-    const copyToClipboard = async (text: string | null) => {
-        if (!text) return;
-        try {
-            await onCopy(text);
-            triggerHapticFeedback('notificationSuccess');
-            toast.show({
-                description: 'Copied to clipboard ✓',
-                placement: 'top',
-                duration: 1500,
-            });
-        } catch (e) {
-            console.error('Copying to clipboard error', e);
-        }
-    };
-
-    const manufacturerText = manufacturer ? `${manufacturer.name} <${manufacturer.code}>` : 'N/A';
 
     return (
         <ThemedContainer style={styles.container}>
@@ -133,28 +106,34 @@ export const DeviceScreen: React.FC = () => {
             <ScrollView style={styles.informations}>
                 <Text>Device</Text>
                 <View style={[styles.section, { backgroundColor }]}>
-                    <Text fontSize={18} fontWeight={500} lineHeight={28}>
-                        {name}
+                    <Text fontSize={18} lineHeight={28}>
+                        {name || 'N/A'}
                     </Text>
-                    <Text fontSize={14} fontWeight={500}>
-                        {id}
-                    </Text>
+                    <Text fontSize={14}>{id}</Text>
                 </View>
 
                 <Text>Manufacturer</Text>
                 <View style={[styles.section, { backgroundColor }]}>
-                    <Text fontSize={16} fontWeight={500}>
-                        {manufacturer?.name}
-                    </Text>
-                    <Text fontSize={14} fontWeight={500}>
-                        {`<${manufacturer?.code}>`}
-                    </Text>
+                    {manufacturer?.code ? (
+                        <View>
+                            <Text fontSize={14}>{manufacturer?.name || 'N/A'}</Text>
+                            <Text fontSize={14}>{`<${manufacturer?.code}>`}</Text>
+                        </View>
+                    ) : (
+                        <Text fontSize={14}>N/A</Text>
+                    )}
                 </View>
 
                 <Text>Attributes</Text>
-                {services.map(service => (
-                    <Accordion service={service} characteristics={characteristics} />
-                ))}
+                {isDiscovering ? (
+                    <ActivityIndicator style={{ marginTop: '15%' }} />
+                ) : (
+                    <View>
+                        {services.map(service => (
+                            <Accordion key={service.id} service={service} />
+                        ))}
+                    </View>
+                )}
             </ScrollView>
         </ThemedContainer>
     );

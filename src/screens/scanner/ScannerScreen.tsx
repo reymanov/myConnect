@@ -9,10 +9,13 @@ import { triggerHapticFeedback } from '@utils/HapticFeedback';
 import ThemedContainer from '@containers/ThemedContainer';
 import { MyConnectLogo } from '@components/scanner/MyConnectLogo';
 import { DeviceListItem } from '@components/scanner/DeviceListItem';
+import { Pulse } from '@components/animated';
+import { useTheme } from 'native-base';
 
 export const ScannerScreen: React.FC = () => {
     const { navigate } = useNavigation<any>();
     const isScanning = useSelectIsScanning();
+    const { colors } = useTheme();
 
     const { allDevices, scanForPeripherals, stopScan, clearDevices } = useBle();
 
@@ -36,6 +39,9 @@ export const ScannerScreen: React.FC = () => {
         <ThemedContainer style={styles.container}>
             <View style={styles.logo}>
                 <MyConnectLogo />
+                {isScanning && allDevices.length === 0 && (
+                    <Pulse size={40} color={colors.cyan[600]} />
+                )}
             </View>
 
             <FlatList

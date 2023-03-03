@@ -3,12 +3,13 @@ import { StyleSheet, View } from 'react-native';
 import ThemedContainer from '@containers/ThemedContainer';
 import { ScrollView, Switch, Text, useColorMode, useTheme } from 'native-base';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { DarkTheme } from '@react-navigation/native';
 
 export const SettingsScreen: React.FC = () => {
     const { colorMode, toggleColorMode } = useColorMode();
     const { colors } = useTheme();
 
-    const backgroundColor = colorMode === 'dark' ? colors.dark[100] : colors.white;
+    const backgroundColor = colorMode === 'dark' ? DarkTheme.colors.card : colors.white;
     const color = colorMode === 'dark' ? colors.white : colors.black;
     return (
         <ThemedContainer style={styles.container}>

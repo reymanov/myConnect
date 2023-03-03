@@ -1,9 +1,10 @@
 import { useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
+import { Buffer } from 'buffer';
 import { BleManager, Characteristic, Device, Service } from 'react-native-ble-plx';
 
 import { bleActions } from '@store/ble';
-import { Alert } from 'react-native';
+import { base64ToHex } from '@utils/BleUtils';
 
 interface BluetoothLowEnergyAPI {
     allDevices: Device[];
@@ -16,6 +17,11 @@ interface BluetoothLowEnergyAPI {
     discoverAllServicesAndCharacteristics: (
         device: Device
     ) => Promise<{ services: Service[]; characteristics: Characteristic[] } | undefined>;
+    readCharacteristicValue: (
+        deviceId: string,
+        serviceUUID: string,
+        characteristicUUID: string
+    ) => Promise<any>;
 }
 
 const bleManager = new BleManager();
@@ -102,6 +108,21 @@ const useBle = (): BluetoothLowEnergyAPI => {
         }
     };
 
+    const readCharacteristicValue = async (
+        deviceId: string,
+        serviceUUID: string,
+        characteristicUUID: string
+    ) => {
+        const { value: base64Value } = await bleManager.readCharacteristicForDevice(
+            deviceId,
+            serviceUUID,
+            characteristicUUID
+        );
+        if (!base64Value) return null;
+        const hex = base64ToHex(base64Value);
+        return hex;
+    };
+
     return {
         allDevices,
         connectedDevice,
@@ -111,12 +132,8 @@ const useBle = (): BluetoothLowEnergyAPI => {
         connectToDevice,
         disconnectFromDevice,
         discoverAllServicesAndCharacteristics,
+        readCharacteristicValue,
     };
 };
 
 export default useBle;
-
-// 1. Connect to device
-// 2. Discover all services and characteristics
-// 3. Get services
-// 4. Get characteristics for service

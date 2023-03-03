@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { Text, useClipboard, useColorMode, useTheme, useToast, VStack } from 'native-base';
+import { HStack, Text, useClipboard, useColorMode, useTheme, useToast } from 'native-base';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Characteristic } from 'react-native-ble-plx';
 import { triggerHapticFeedback } from '@utils/HapticFeedback';
+import useBle from '@hooks/useBle';
+import { DarkTheme } from '@react-navigation/native';
 
 const LIST_ITEM_HEIGHT = 130;
 
@@ -24,7 +26,7 @@ export const AccordionItem: React.FC<Props> = ({ characteristic, isLast }) => {
     } = characteristic;
     const { colorMode } = useColorMode();
     const { colors } = useTheme();
-
+    const { readCharacteristicValue } = useBle();
     const { onCopy } = useClipboard();
     const toast = useToast();
 
@@ -36,14 +38,12 @@ export const AccordionItem: React.FC<Props> = ({ characteristic, isLast }) => {
     if (isIndicatable || isWritableWithoutResponse) properties.push('and more...');
 
     const copyToClipboard = async (text: string | null) => {
-        console.log(text);
         if (!text) return;
         try {
             await onCopy(text);
-            triggerHapticFeedback('notificationSuccess');
             toast.show({
                 description: 'Copied to clipboard ✓',
-                placement: 'top',
+                placement: 'bottom',
                 duration: 1500,
             });
         } catch (e) {
@@ -51,7 +51,20 @@ export const AccordionItem: React.FC<Props> = ({ characteristic, isLast }) => {
         }
     };
 
-    const backgroundColor = colorMode === 'dark' ? colors.dark[100] : colors.white;
+    const onReadValue = async () => {
+        try {
+            const value = await readCharacteristicValue(
+                characteristic.deviceID,
+                characteristic.serviceUUID,
+                characteristic.uuid
+            );
+            setValue(value);
+        } catch (e) {
+            console.error('Reading characteristic value error', e);
+        }
+    };
+
+    const backgroundColor = colorMode === 'dark' ? DarkTheme.colors.card : colors.white;
 
     return (
         <View
@@ -73,17 +86,34 @@ export const AccordionItem: React.FC<Props> = ({ characteristic, isLast }) => {
                     Properties:{' '}
                     {properties.length >= 2 ? properties.join(' and ') : properties.join(', ')}
                 </Text>
-                <Text>Value: {value || 'N/A'}</Text>
+                <Text numberOfLines={1}>Value: {value || 'N/A'}</Text>
 
                 <View style={styles.indicatorSmall} />
-                <VStack style={{ marginTop: 2 }}>
+                <HStack style={styles.actionButtons}>
                     <TouchableOpacity
-                        style={styles.iconButton}
+                        style={[styles.iconButton, { backgroundColor: colors.cyan[600] }]}
                         onPress={() => copyToClipboard(value || 'N/A')}
                     >
-                        <Icon name="copy" size={20} color={colors.gray[400]} />
+                        <Icon name="copy" size={18} color={colors.white} />
                     </TouchableOpacity>
-                </VStack>
+                    <HStack>
+                        {isReadable && (
+                            <TouchableOpacity
+                                onPress={onReadValue}
+                                style={[styles.iconButton, { backgroundColor: colors.cyan[600] }]}
+                            >
+                                <Icon name="arrow-down" size={20} color={colors.white} />
+                            </TouchableOpacity>
+                        )}
+                        {isWritableWithResponse && (
+                            <TouchableOpacity
+                                style={[styles.iconButton, { backgroundColor: colors.cyan[600] }]}
+                            >
+                                <Icon name="arrow-up" size={20} color={colors.white} />
+                            </TouchableOpacity>
+                        )}
+                    </HStack>
+                </HStack>
             </View>
         </View>
     );
@@ -117,8 +147,14 @@ const styles = StyleSheet.create({
     iconButton: {
         width: 28,
         height: 28,
+        marginHorizontal: 4,
         justifyContent: 'center',
         alignItems: 'center',
+        borderRadius: 6,
+    },
+    actionButtons: {
+        marginTop: 2,
+        justifyContent: 'space-between',
     },
     content: {
         flex: 1,

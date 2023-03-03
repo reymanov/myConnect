@@ -1,8 +1,7 @@
-import React from 'react';
-import { Text, useColorMode, useTheme } from 'native-base';
-import Icon from 'react-native-vector-icons/Ionicons';
-import { Characteristic, Service } from 'react-native-ble-plx';
+import React, { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
+import { Text, useColorMode, useTheme } from 'native-base';
+import { Characteristic, Service } from 'react-native-ble-plx';
 import Animated, {
     useAnimatedRef,
     measure,
@@ -13,16 +12,18 @@ import Animated, {
     withTiming,
     runOnUI,
 } from 'react-native-reanimated';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 import { clamp } from '@utils/helpers/animations';
 import { AccordionItem } from './AccordionItem';
+import { DarkTheme } from '@react-navigation/native';
 
 interface Props {
     service: Service;
-    characteristics: Characteristic[];
 }
 
-export const Accordion: React.FC<Props> = ({ service, characteristics }) => {
+export const Accordion: React.FC<Props> = ({ service }) => {
+    const [characteristics, setCharacteristics] = useState<Characteristic[]>([]);
     const aref = useAnimatedRef<View>();
     const open = useSharedValue(false);
     const progress = useDerivedValue(() => (open.value ? withSpring(1) : withTiming(0)));
@@ -31,7 +32,7 @@ export const Accordion: React.FC<Props> = ({ service, characteristics }) => {
     const { colors } = useTheme();
 
     const iconColor = colorMode === 'dark' ? colors.white : colors.black;
-    const backgroundColor = colorMode === 'dark' ? colors.dark[100] : colors.white;
+    const backgroundColor = colorMode === 'dark' ? DarkTheme.colors.card : colors.white;
 
     const headerStyle = useAnimatedStyle(() => ({
         borderBottomLeftRadius: progress.value === 0 ? 8 : 0,
@@ -50,6 +51,18 @@ export const Accordion: React.FC<Props> = ({ service, characteristics }) => {
         opacity: progress.value === 0 ? 0 : 1,
     }));
 
+    useEffect(() => {
+        const getCharacteristics = async () => {
+            try {
+                const chars = await service.characteristics();
+                setCharacteristics(chars);
+            } catch (e) {
+                console.error('Error getting characteristics', e);
+            }
+        };
+        getCharacteristics();
+    }, [service]);
+
     const onHeaderPress = () => {
         if (height.value === 0) {
             runOnUI(() => {
@@ -62,9 +75,9 @@ export const Accordion: React.FC<Props> = ({ service, characteristics }) => {
     };
 
     return (
-        <>
+        <View style={styles.container}>
             <Pressable onPress={onHeaderPress}>
-                <Animated.View style={[styles.container, { backgroundColor }, headerStyle]}>
+                <Animated.View style={[styles.header, { backgroundColor }, headerStyle]}>
                     <View>
                         <Text fontWeight={600}>
                             Unknown Service {service.isPrimary ? '- Primary' : null}
@@ -88,12 +101,15 @@ export const Accordion: React.FC<Props> = ({ service, characteristics }) => {
                     ))}
                 </View>
             </Animated.View>
-        </>
+        </View>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
+        marginBottom: 8,
+    },
+    header: {
         marginTop: 2,
         padding: 16,
         borderTopLeftRadius: 8,
