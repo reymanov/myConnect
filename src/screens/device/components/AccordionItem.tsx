@@ -3,9 +3,9 @@ import { HStack, Text, useClipboard, useColorMode, useTheme, useToast } from 'na
 import Icon from 'react-native-vector-icons/Ionicons';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Characteristic } from 'react-native-ble-plx';
-import { triggerHapticFeedback } from '@utils/HapticFeedback';
 import useBle from '@hooks/useBle';
 import { DarkTheme } from '@react-navigation/native';
+import { WriteModal } from './WriteModal';
 
 const LIST_ITEM_HEIGHT = 130;
 
@@ -15,6 +15,7 @@ interface Props {
 }
 
 export const AccordionItem: React.FC<Props> = ({ characteristic, isLast }) => {
+    const [isWriteModalVisible, setIsWriteModalVisible] = useState(false);
     const [value, setValue] = useState<string | null>(null);
     const {
         uuid,
@@ -64,58 +65,75 @@ export const AccordionItem: React.FC<Props> = ({ characteristic, isLast }) => {
         }
     };
 
+    const onWriteValue = async () => {};
+
     const backgroundColor = colorMode === 'dark' ? DarkTheme.colors.card : colors.white;
 
     return (
-        <View
-            style={[
-                styles.container,
-                {
-                    borderBottomLeftRadius: isLast ? 8 : 0,
-                    borderBottomRightRadius: isLast ? 8 : 0,
+        <>
+            <WriteModal
+                isOpen={isWriteModalVisible}
+                onClose={() => setIsWriteModalVisible(false)}
+                onWrite={onWriteValue}
+            />
 
-                    backgroundColor,
-                },
-            ]}
-        >
-            <View style={styles.content}>
-                <View style={styles.indicatorBig} />
-                <Text fontWeight={600}>Unknown Characteristics</Text>
-                <Text>UUID: {uuid} </Text>
-                <Text>
-                    Properties:{' '}
-                    {properties.length >= 2 ? properties.join(' and ') : properties.join(', ')}
-                </Text>
-                <Text numberOfLines={1}>Value: {value || 'N/A'}</Text>
+            <View
+                style={[
+                    styles.container,
+                    {
+                        borderBottomLeftRadius: isLast ? 8 : 0,
+                        borderBottomRightRadius: isLast ? 8 : 0,
 
-                <View style={styles.indicatorSmall} />
-                <HStack style={styles.actionButtons}>
-                    <TouchableOpacity
-                        style={[styles.iconButton, { backgroundColor: colors.cyan[600] }]}
-                        onPress={() => copyToClipboard(value || 'N/A')}
-                    >
-                        <Icon name="copy" size={18} color={colors.white} />
-                    </TouchableOpacity>
-                    <HStack>
-                        {isReadable && (
-                            <TouchableOpacity
-                                onPress={onReadValue}
-                                style={[styles.iconButton, { backgroundColor: colors.cyan[600] }]}
-                            >
-                                <Icon name="arrow-down" size={20} color={colors.white} />
-                            </TouchableOpacity>
-                        )}
-                        {isWritableWithResponse && (
-                            <TouchableOpacity
-                                style={[styles.iconButton, { backgroundColor: colors.cyan[600] }]}
-                            >
-                                <Icon name="arrow-up" size={20} color={colors.white} />
-                            </TouchableOpacity>
-                        )}
+                        backgroundColor,
+                    },
+                ]}
+            >
+                <View style={styles.content}>
+                    <View style={styles.indicatorBig} />
+                    <Text fontWeight={600}>Unknown Characteristics</Text>
+                    <Text>UUID: {uuid} </Text>
+                    <Text>
+                        Properties:{' '}
+                        {properties.length >= 2 ? properties.join(' and ') : properties.join(', ')}
+                    </Text>
+                    <Text numberOfLines={1}>Value: {value || 'N/A'}</Text>
+
+                    <View style={styles.indicatorSmall} />
+                    <HStack style={styles.actionButtons}>
+                        <TouchableOpacity
+                            style={[styles.iconButton, { backgroundColor: colors.cyan[600] }]}
+                            onPress={() => copyToClipboard(value || 'N/A')}
+                        >
+                            <Icon name="copy" size={18} color={colors.white} />
+                        </TouchableOpacity>
+                        <HStack>
+                            {isReadable && (
+                                <TouchableOpacity
+                                    onPress={onReadValue}
+                                    style={[
+                                        styles.iconButton,
+                                        { backgroundColor: colors.cyan[600] },
+                                    ]}
+                                >
+                                    <Icon name="arrow-down" size={20} color={colors.white} />
+                                </TouchableOpacity>
+                            )}
+                            {isWritableWithResponse || isWritableWithoutResponse ? (
+                                <TouchableOpacity
+                                    onPress={() => setIsWriteModalVisible(true)}
+                                    style={[
+                                        styles.iconButton,
+                                        { backgroundColor: colors.cyan[600] },
+                                    ]}
+                                >
+                                    <Icon name="arrow-up" size={20} color={colors.white} />
+                                </TouchableOpacity>
+                            ) : null}
+                        </HStack>
                     </HStack>
-                </HStack>
+                </View>
             </View>
-        </View>
+        </>
     );
 };
 

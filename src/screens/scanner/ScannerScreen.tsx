@@ -1,16 +1,16 @@
 import React, { useEffect } from 'react';
+import { useTheme } from 'native-base';
 import { Device } from 'react-native-ble-plx';
 import { useNavigation } from '@react-navigation/native';
 import { View, StyleSheet, RefreshControl, FlatList } from 'react-native';
 
 import useBle from '@hooks/useBle';
+import { Pulse } from '@components/animated';
 import { useSelectIsScanning } from '@store/ble';
 import { triggerHapticFeedback } from '@utils/HapticFeedback';
 import ThemedContainer from '@containers/ThemedContainer';
 import { MyConnectLogo } from '@components/scanner/MyConnectLogo';
 import { DeviceListItem } from '@components/scanner/DeviceListItem';
-import { Pulse } from '@components/animated';
-import { useTheme } from 'native-base';
 
 export const ScannerScreen: React.FC = () => {
     const { navigate } = useNavigation<any>();

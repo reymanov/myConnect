@@ -1,4 +1,3 @@
-import { useTheme } from 'native-base';
 import React, { useEffect } from 'react';
 import { StyleSheet, View, ViewStyle } from 'react-native';
 import Animated, {
@@ -35,7 +34,7 @@ const Ring: React.FC<IRingProps> = ({ size, color, delay }) => {
             delay,
             withRepeat(
                 withTiming(1, {
-                    duration: 3000,
+                    duration: 2500,
                 }),
                 -1,
                 false
@@ -63,8 +62,8 @@ export const Pulse: React.FC<IPulseProps> = ({ size, color, style }) => {
     return (
         <View style={[styles.wrapper, style]}>
             <Ring size={size} color={color} delay={0} />
+            <Ring size={size} color={color} delay={500} />
             <Ring size={size} color={color} delay={1000} />
-            <Ring size={size} color={color} delay={2000} />
         </View>
     );
 };
