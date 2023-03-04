@@ -1,4 +1,6 @@
+import { clamp } from 'lodash';
 import React, { useEffect, useState } from 'react';
+import { DarkTheme } from '@react-navigation/native';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Text, useColorMode, useTheme } from 'native-base';
 import { Characteristic, Service } from 'react-native-ble-plx';
@@ -14,9 +16,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-import { clamp } from '@utils/helpers/animations';
 import { AccordionItem } from './AccordionItem';
-import { DarkTheme } from '@react-navigation/native';
 
 interface Props {
     service: Service;

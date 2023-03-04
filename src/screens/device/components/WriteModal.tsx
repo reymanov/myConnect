@@ -18,14 +18,14 @@ export const WriteModal: React.FC<Props> = ({ isOpen, onClose, onWrite }) => {
     const [valueIndex, setValueIndex] = useState(0);
     const [writeIndex, setWriteIndex] = useState(0);
     const [value, setValue] = useState<any>('');
+
     const { colorMode } = useColorMode();
     const { colors } = useTheme();
 
     const bgHeader = colorMode === 'dark' ? DarkTheme.colors.card : colors.white;
     const bgContent = colorMode === 'dark' ? colors.dark[50] : colors.gray[100];
 
-    const segmentFontColor = colorMode === 'dark' ? colors.gray[100] : colors.gray[800];
-    const activeSegmentFontColor = colorMode === 'dark' ? colors.white : colors.gray[800];
+    const tintColor = colorMode === 'dark' ? colors.cyan[600] : colors.cyan[600];
 
     const handleWrite = () => {
         onWrite(value, valueTypes[valueIndex]);
@@ -62,6 +62,7 @@ export const WriteModal: React.FC<Props> = ({ isOpen, onClose, onWrite }) => {
                     <View style={styles.content}>
                         <Input
                             variant={'filled'}
+                            backgroundColor={bgHeader}
                             placeholder="Enter value"
                             fontSize={14}
                             value={value}
@@ -70,21 +71,17 @@ export const WriteModal: React.FC<Props> = ({ isOpen, onClose, onWrite }) => {
 
                         <Text style={styles.controlLabel}>Value Type</Text>
                         <SegmentedControl
-                            fontStyle={{ color: segmentFontColor }}
-                            activeFontStyle={{ color: activeSegmentFontColor }}
-                            backgroundColor={bgContent}
                             values={valueTypes}
                             selectedIndex={valueIndex}
+                            tintColor={tintColor}
                             onChange={handleValueIndexChange}
                         />
 
                         <Text style={styles.controlLabel}>Write Type</Text>
                         <SegmentedControl
-                            fontStyle={{ color: segmentFontColor }}
-                            activeFontStyle={{ color: activeSegmentFontColor }}
-                            backgroundColor={bgContent}
                             values={writeTypes}
                             selectedIndex={writeIndex}
+                            tintColor={tintColor}
                             onChange={handleWriteIndexChange}
                         />
                     </View>

@@ -7,7 +7,7 @@ import { HStack, Spacer, useColorMode, useTheme, View, VStack } from 'native-bas
 
 import { decodeManufacturerData } from '@utils/BleUtils';
 import ThemedText from '@components/general/texts/ThemedText';
-import { SignalStrength } from '@components/scanner/SignalStrength';
+import { SignalStrength } from '@root/src/screens/scanner/components/SignalStrength';
 
 interface Props {
     device: Device;

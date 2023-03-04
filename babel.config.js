@@ -6,6 +6,7 @@ module.exports = api => {
             {
                 root: ['./'],
                 alias: {
+                    '@root': './',
                     '@assets': './src/assets',
                     '@components': './src/components',
                     '@containers': './src/containers',

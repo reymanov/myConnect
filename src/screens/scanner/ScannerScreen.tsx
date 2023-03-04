@@ -9,8 +9,8 @@ import { Pulse } from '@components/animated';
 import { useSelectIsScanning } from '@store/ble';
 import { triggerHapticFeedback } from '@utils/HapticFeedback';
 import ThemedContainer from '@containers/ThemedContainer';
-import { MyConnectLogo } from '@components/scanner/MyConnectLogo';
-import { DeviceListItem } from '@components/scanner/DeviceListItem';
+import { MyConnectLogo } from '@root/src/screens/scanner/components/MyConnectLogo';
+import { DeviceListItem } from '@root/src/screens/scanner/components/DeviceListItem';
 
 export const ScannerScreen: React.FC = () => {
     const { navigate } = useNavigation<any>();
