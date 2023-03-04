@@ -6,9 +6,8 @@ import { MyConnectIcon } from '@components/icons';
 export const MyConnectLogo: React.FC = () => {
     const { colorMode } = useColorMode();
     const { colors } = useTheme();
-    const isDarkMode = colorMode === 'dark';
 
-    const logoColor = isDarkMode ? colors.dark[400] : colors.dark[700];
+    const logoColor = colorMode === 'dark' ? colors.dark[100] : colors.dark[700];
 
     return (
         <Center>

@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { HStack, Text, useClipboard, useColorMode, useTheme, useToast } from 'native-base';
+import { DarkTheme } from '@react-navigation/native';
+import { Characteristic } from 'react-native-ble-plx';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import { Characteristic } from 'react-native-ble-plx';
+import { HStack, Text, useClipboard, useColorMode, useTheme, useToast } from 'native-base';
+
 import useBle from '@hooks/useBle';
-import { DarkTheme } from '@react-navigation/native';
 import { WriteModal } from './WriteModal';
 
 const LIST_ITEM_HEIGHT = 130;

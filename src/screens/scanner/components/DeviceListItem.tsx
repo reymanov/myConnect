@@ -3,11 +3,10 @@ import { Device } from 'react-native-ble-plx';
 import { DarkTheme } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { StyleSheet, TouchableOpacity } from 'react-native';
-import { HStack, Spacer, useColorMode, useTheme, View, VStack } from 'native-base';
+import { HStack, Spacer, Text, useColorMode, useTheme, View, VStack } from 'native-base';
 
 import { decodeManufacturerData } from '@utils/BleUtils';
-import ThemedText from '@components/general/texts/ThemedText';
-import { SignalStrength } from '@root/src/screens/scanner/components/SignalStrength';
+import { SignalStrength } from './SignalStrength';
 
 interface Props {
     device: Device;
@@ -37,22 +36,20 @@ export const DeviceListItem: React.FC<Props> = ({ device, isScanActive, onPress 
 
                 <VStack flexShrink={1}>
                     <View>
-                        <ThemedText fontSize={'md'} fontWeight={'medium'}>
+                        <Text fontSize={'md'} fontWeight={'medium'}>
                             {name || 'N/A'}
-                        </ThemedText>
-                        {manufacturer?.name && (
-                            <ThemedText fontSize={'xs'}>{manufacturer.name}</ThemedText>
-                        )}
-                        <ThemedText fontSize={'xs'} color={'gray.500'}>
+                        </Text>
+                        {manufacturer?.name && <Text fontSize={'xs'}>{manufacturer.name}</Text>}
+                        <Text fontSize={'xs'} color={'gray.500'}>
                             {id}
-                        </ThemedText>
+                        </Text>
                     </View>
 
                     <HStack alignItems={'center'} space={1}>
                         <Icon name={'signal-cellular-alt'} size={14} color={iconColor} />
-                        <ThemedText fontSize={'xs'} fontWeight={'light'}>
+                        <Text fontSize={'xs'} fontWeight={'light'}>
                             {isScanActive && rssi ? `${rssi} dBm` : 'N/A'}
-                        </ThemedText>
+                        </Text>
                     </HStack>
                 </VStack>
 

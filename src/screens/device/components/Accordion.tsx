@@ -1,4 +1,3 @@
-import { clamp } from 'lodash';
 import React, { useEffect, useState } from 'react';
 import { DarkTheme } from '@react-navigation/native';
 import { Pressable, StyleSheet, View } from 'react-native';
@@ -16,6 +15,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import Icon from 'react-native-vector-icons/Ionicons';
 
+import { clamp } from '@utils/Animations';
 import { AccordionItem } from './AccordionItem';
 
 interface Props {

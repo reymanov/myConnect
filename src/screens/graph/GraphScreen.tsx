@@ -1,12 +1,12 @@
 import React from 'react';
+import { Text } from 'native-base';
 import { StyleSheet } from 'react-native';
-import ThemedText from '@components/general/texts/ThemedText';
-import ThemedContainer from '@src/containers/ThemedContainer';
+import ThemedContainer from '@containers/ThemedContainer';
 
 export const GraphScreen = () => {
     return (
         <ThemedContainer style={styles.container}>
-            <ThemedText>RSSI Graph</ThemedText>
+            <Text>RSSI Graph</Text>
         </ThemedContainer>
     );
 };

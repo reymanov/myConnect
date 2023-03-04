@@ -124,7 +124,7 @@ export const DeviceScreen: React.FC = () => {
                     )}
                 </View>
 
-                <Text>Attributes</Text>
+                {services.length > 0 && <Text>Attributes</Text>}
                 {isDiscovering ? (
                     <ActivityIndicator style={{ marginTop: '15%' }} />
                 ) : (

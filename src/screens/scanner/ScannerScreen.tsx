@@ -1,23 +1,25 @@
-import React, { useEffect } from 'react';
 import { useTheme } from 'native-base';
 import { Device } from 'react-native-ble-plx';
+import React, { useEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
+import Animated, { FadeInUp, FadeOutUp } from 'react-native-reanimated';
 import { View, StyleSheet, RefreshControl, FlatList } from 'react-native';
 
 import useBle from '@hooks/useBle';
 import { Pulse } from '@components/animated';
 import { useSelectIsScanning } from '@store/ble';
-import { triggerHapticFeedback } from '@utils/HapticFeedback';
 import ThemedContainer from '@containers/ThemedContainer';
-import { MyConnectLogo } from '@root/src/screens/scanner/components/MyConnectLogo';
-import { DeviceListItem } from '@root/src/screens/scanner/components/DeviceListItem';
+import { MyConnectLogo } from './components/MyConnectLogo';
+import { DeviceListItem } from './components/DeviceListItem';
+import { ScannerTooltip } from './components/ScannerTooltip';
 
 export const ScannerScreen: React.FC = () => {
+    const [isTooltipVisible, setIsTooltipVisible] = useState(true);
+
+    const { allDevices, scanForPeripherals, stopScan, clearDevices } = useBle();
     const { navigate } = useNavigation<any>();
     const isScanning = useSelectIsScanning();
     const { colors } = useTheme();
-
-    const { allDevices, scanForPeripherals, stopScan, clearDevices } = useBle();
 
     const navigateToDevice = (device: Device) => {
         stopScan();
@@ -25,8 +27,6 @@ export const ScannerScreen: React.FC = () => {
     };
 
     const onRefresh = () => {
-        triggerHapticFeedback('impactLight');
-        stopScan();
         clearDevices();
     };
 
@@ -35,28 +35,39 @@ export const ScannerScreen: React.FC = () => {
         else stopScan();
     }, [isScanning]);
 
+    useEffect(() => {
+        setTimeout(() => {
+            setIsTooltipVisible(false);
+        }, 3000);
+        if (isScanning) setIsTooltipVisible(false);
+    }, [isScanning]);
+
+    const isAnimationVisible = isScanning && allDevices.length === 0;
+
     return (
         <ThemedContainer style={styles.container}>
+            {isTooltipVisible && <ScannerTooltip />}
+
             <View style={styles.logo}>
                 <MyConnectLogo />
-                {isScanning && allDevices.length === 0 && (
-                    <Pulse size={40} color={colors.cyan[600]} />
-                )}
+                {isAnimationVisible && <Pulse size={60} color={colors.cyan[600]} />}
             </View>
 
             <FlatList
                 style={styles.list}
+                showsVerticalScrollIndicator={false}
                 refreshControl={<RefreshControl refreshing={false} onRefresh={onRefresh} />}
                 keyExtractor={item => item.id}
                 data={allDevices}
                 renderItem={({ item }: { item: Device }) => {
                     return (
-                        <DeviceListItem
-                            key={item.id}
-                            device={item}
-                            isScanActive={isScanning}
-                            onPress={() => navigateToDevice(item)}
-                        />
+                        <Animated.View entering={FadeInUp} exiting={FadeOutUp} key={item.id}>
+                            <DeviceListItem
+                                device={item}
+                                isScanActive={isScanning}
+                                onPress={() => navigateToDevice(item)}
+                            />
+                        </Animated.View>
                     );
                 }}
             />

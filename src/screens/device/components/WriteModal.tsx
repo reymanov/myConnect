@@ -22,10 +22,9 @@ export const WriteModal: React.FC<Props> = ({ isOpen, onClose, onWrite }) => {
     const { colorMode } = useColorMode();
     const { colors } = useTheme();
 
+    const tintColor = colors.cyan[600];
     const bgHeader = colorMode === 'dark' ? DarkTheme.colors.card : colors.white;
     const bgContent = colorMode === 'dark' ? colors.dark[50] : colors.gray[100];
-
-    const tintColor = colorMode === 'dark' ? colors.cyan[600] : colors.cyan[600];
 
     const handleWrite = () => {
         onWrite(value, valueTypes[valueIndex]);
@@ -101,7 +100,7 @@ export const WriteModal: React.FC<Props> = ({ isOpen, onClose, onWrite }) => {
 
 const styles = StyleSheet.create({
     modal: {
-        borderRadius: 18,
+        borderRadius: 10,
         overflow: 'hidden',
     },
     header: {
@@ -122,8 +121,7 @@ const styles = StyleSheet.create({
     },
     content: {
         paddingHorizontal: 16,
-        paddingTop: 16,
-        paddingBottom: 24,
+        paddingVertical: 24,
     },
     footer: {
         paddingHorizontal: 16,
