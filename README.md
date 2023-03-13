@@ -4,8 +4,8 @@ Cross platform mobile application that allows you to scan and explore Bluetooth 
 
 #### Built with React Native
 
-![IMG_1012](https://user-images.githubusercontent.com/60399481/198145817-92903b5d-5596-4751-9a9d-3153c3f01737.png)
-![IMG_2697](https://user-images.githubusercontent.com/60399481/224721493-21d08b85-22b2-4050-a2ec-478230bed6cb.jpg)
-![IMG_2698](https://user-images.githubusercontent.com/60399481/224721475-0da46dff-f6b1-4f94-a3af-30ab90cfd187.jpg)
-![IMG_2699](https://user-images.githubusercontent.com/60399481/224721489-0ad3c182-e196-44dd-b3c7-056a39ee464f.jpg)
 
+![IMG_2700-kopia](https://user-images.githubusercontent.com/60399481/224722358-8cf9d568-c980-4c0e-b893-d7e1af92d919.jpg)
+![IMG_2697-kopia](https://user-images.githubusercontent.com/60399481/224722364-9519e59b-a5d3-4240-a787-fe19e1543640.jpg)
+![IMG_2698-kopia](https://user-images.githubusercontent.com/60399481/224722368-2916061f-477f-4808-a2e5-5747ec93eee3.jpg)
+![IMG_2699-kopia](https://user-images.githubusercontent.com/60399481/224722373-04eb0506-f45f-4cfc-b190-f1c8fef59c70.jpg)
